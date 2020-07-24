@@ -1,0 +1,40 @@
+# the simulation parameters
+
+num_of_trial: 10 # 100
+
+# Landmark
+landmark_position: [20.0, 20.0]
+
+# Time
+dt: 0.1
+num_T: 16 # number of observation update
+num_t: 10 # number of time updates for each observation update
+
+# Estimation initialization
+
+
+##### Time update noise parameter
+
+# angular velocity
+w: 0.8  # 1  # rad/s
+w_std: 0.4
+
+# translational velocity
+v: 0.3  # m/s
+v_std: 0.06 
+
+
+##### Observation update noise parameter
+phi_cct: 400.0
+d_std: 0.7 
+
+
+##### Case
+unkonwn_theta_cov: 100.0
+
+color: {
+    navy: (34.0/255, 58.0/255, 94.0/255),
+    grenadine: (220.0/255, 76.0/255, 70.0/255),
+    spruce: (0, 89.0/255, 96.0/255),
+    mustard: (216.0/255, 174.0/255, 71.0/255)
+}
