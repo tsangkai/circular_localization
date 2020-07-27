@@ -1,14 +1,14 @@
 # the simulation parameters
 
-num_of_trial: 10 # 100
+num_of_trial: 10 # 200
 
 # Landmark
 landmark_position: [20.0, 20.0]
 
 # Time
 dt: 0.1
-num_T: 16 # number of observation update
-num_t: 10 # number of time updates for each observation update
+num_T: 16     # number of observation update
+num_t: 10     # number of time updates for each observation update
 
 # Estimation initialization
 
@@ -16,17 +16,17 @@ num_t: 10 # number of time updates for each observation update
 ##### Time update noise parameter
 
 # angular velocity
-w: 0.8    # rad/s
+w: 0.8        # rad/s
 w_std: 0.4
 
 # translational velocity
-v: 0.3  # m/s
+v: 0.3        # m/s
 v_std: 0.03
 
 
 ##### Observation update noise parameter
 phi_cct: 400.0
-d_std: 0.01 #0.7 
+d_std: 0.01 
 
 
 ##### Case

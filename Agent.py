@@ -24,6 +24,7 @@ class Agent:
 
 
 		# kown initial case (trajectory sim)
+		'''
 		initial_state = np.matrix([_theta, _position[0], _position[1]]).getT()
 		initial_cov = _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])
 
@@ -31,10 +32,9 @@ class Agent:
 		self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=1.0/0.01, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
 		self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/0.01)
 		self.lie_estimate = Estimators.LieGroupSpatialState(_mean=initial_state, _cov=initial_cov)      
-
+		'''
 
 		# unkown initial case (dynamic sim)
-		'''
 		theta_cov = 1.0 / Parameter.unkonwn_theta_cct
 		initial_state = np.matrix([0, 0, 0]).getT()
 		initial_cov = _cov=np.matrix([[theta_cov,0,0], [0,0.01,0], [0,0,0.01]])
@@ -44,7 +44,6 @@ class Agent:
 		self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=Parameter.unkonwn_theta_cct, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
 		# self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/theta_cov)
 		self.lie_estimate = Estimators.LieGroupSpatialState(_mean=np.matrix([[0.0], [0.0], [0.0]]), _cov=initial_cov)      
-		'''
 
 
 		# unkown initial case of all estimation
@@ -86,7 +85,7 @@ class Agent:
 		# estimate update
 		self.EKF_estimate.time_update(w, w_std, v, v_std, dt)
 		self.hybrid_estimate.time_update(w, w_std, v, v_std, dt)
-		self.circular_estimate.time_update(w, w_std, v, v_std, dt)
+		# self.circular_estimate.time_update(w, w_std, v, v_std, dt)
 		self.lie_estimate.time_update(w, w_std, v, v_std, dt)
 
 

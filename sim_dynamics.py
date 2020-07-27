@@ -1,5 +1,6 @@
 # estimation error vs the number of trials
 import numpy as np
+import math
 
 import yaml
 import matplotlib.pyplot as plt
@@ -42,8 +43,8 @@ for n in range(N):
 	print(n)
 	i = 0
 
-	# agent_1 = Agent.Agent(_theta = np.random.uniform(-math.pi, math.pi), _position = [0,0])
-	agent_1 = Agent.Agent()
+	agent_1 = Agent.Agent(_theta = np.random.uniform(-math.pi, math.pi), _position = [0,0])
+	# agent_1 = Agent.Agent()
 
 	for T in range(num_T):
 
@@ -80,18 +81,18 @@ for n in range(N):
 		
 			# circular
 			
-			[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
-			data_circular[i,0] = circular_x
-			data_circular[i,1] = circular_y
+			#[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
+			#data_circular[i,0] = circular_x
+			#data_circular[i,1] = circular_y
 
-			[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
+			#[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
 
-			error_circular[i,0] += or_error / total_sample_number
-			error_circular[i,1] += loc_error / total_sample_number		
+			#error_circular[i,0] += or_error / total_sample_number
+			#error_circular[i,1] += loc_error / total_sample_number		
 			
 
 			# lie
-			[lie_x, lie_y, lie_theta], cov = agent_1.lie_estimate.get_mean_and_cov()
+			[lie_x, lie_y, lie_theta] = agent_1.lie_estimate.read_estimation()
 			data_lie[i,0] = lie_x
 			data_lie[i,1] = lie_x
 
@@ -105,7 +106,6 @@ for n in range(N):
 			i = i+1
 
 
-		agent_1.direct_observation_update()  # fully circular representation
 		agent_1.bd_observation_update()
 
 		time_arr[i] = agent_1.time 
@@ -136,6 +136,7 @@ for n in range(N):
 
 		
 		# circular
+		'''
 		[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
 		data_circular[i,0] = circular_x
 		data_circular[i,1] = circular_y
@@ -144,10 +145,11 @@ for n in range(N):
 
 		error_circular[i,0] += or_error / total_sample_number
 		error_circular[i,1] += loc_error / total_sample_number
+		'''
 		
 
 		# lie
-		[lie_x, lie_y, lie_theta], cov = agent_1.lie_estimate.get_mean_and_cov()
+		[lie_x, lie_y, lie_theta] = agent_1.lie_estimate.read_estimation()
 		data_lie[i,0] = lie_x
 		data_lie[i,1] = lie_x
 
@@ -161,6 +163,8 @@ for n in range(N):
 
 
 
+# visualization
+
 plot_color = {
 	'EKF': config['color']['grenadine'],
 	'LG-EKF': config['color']['mustard'],
@@ -168,31 +172,16 @@ plot_color = {
 	'circular': config['color']['spruce']
 }
 
+
 plt.figure(1)
-
-plt.plot(groundtruth[:,0], groundtruth[:,1], 'k', linewidth=1.6, label = 'groundtruth')
-
-plt.plot(data_ekf[:,0], data_ekf[:,1], '--', color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
-plt.plot(data_lie[:,0], data_lie[:,1],'--',  color = plot_color['LG-EKF'], linewidth=1.6, label = 'Lie-EKF')
-plt.plot(data_hybrid[:,0], data_hybrid[:,1],'--',  color = plot_color['hybrid'], linewidth=1.6, label = 'hybrid')
-plt.plot(data_circular[:,0], data_circular[:,1],'--',  color = plot_color['circular'], linewidth=1.6, label = 'circular')
-
-
-plt.xlim([-1, 1])
-plt.ylim([-1, 1])
-
-
-plt.legend()
-
-
-
-plt.figure(2)
 
 plt.subplot(211)
 
 plt.plot(time_arr, error_ekf[:,0], color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
 plt.plot(time_arr, error_hybrid[:,0], color = plot_color['hybrid'], linewidth=1.6, label = 'hybrid')
-# plt.plot(time_arr, error_lie[:,0], color = plot_color['LG-EKF'], linewidth=1.6, label = 'Lie-EKF')
+plt.plot(time_arr, error_lie[:,0], color = plot_color['LG-EKF'], linewidth=1.6, label = 'Lie-EKF')
+
+plt.ylabel('orientation err')
 
 
 # plt.ylim([0, 0.2])
@@ -202,7 +191,9 @@ plt.legend()
 plt.subplot(212)
 plt.plot(time_arr, error_ekf[:,1], color = plot_color['EKF'], linewidth=1.6)
 plt.plot(time_arr, error_hybrid[:,1], color = plot_color['hybrid'], linewidth=1.6)
-# plt.plot(time_arr, error_lie[:,1], color = plot_color['LG-EKF'], linewidth=1.6)
+plt.plot(time_arr, error_lie[:,1], color = plot_color['LG-EKF'], linewidth=1.6)
+
+plt.ylabel('position err')
 
 # plt.ylim([0, 0.3])
 plt.show()
