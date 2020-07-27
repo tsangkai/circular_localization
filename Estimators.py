@@ -8,6 +8,8 @@ import math
 import cmath
 import Parameter
 
+from LieGroup import *
+
 from lie_group_func import *
 
 
@@ -317,6 +319,65 @@ class CircularSpatialState:
 		return [self.theta_est.phase, _x, _y]
 
 
+
+########
+
+
+
+class LieGroupSpatialState:
+	def __init__(self, _mean=np.matrix([[0.0], [0.0], [0.0]]), _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])):
+		self.mean = LieGroup(_mean.item(0,0), _mean.item(1,0), _mean.item(2,0))
+		self.cov = _cov
+
+
+	def time_update(self, input_w, input_w_std, input_v, input_v_std, dt):
+		u_t = np.matrix([[input_w*dt], [input_v*dt], [0]])
+		self.mean = self.mean * exp_SE2(u_t)
+
+		F_t = Adjoint_rep(exp_SE2((-1)*u_t)).lg_matrix
+		Phi_G = Phi(u_t)
+		Q = np.matrix([[(input_w_std*dt)**2, 0, 0],
+			[0, (input_v_std*dt)**2, 0],
+			[0, 0, 0]])
+		self.cov = F_t * self.cov * F_t.getT() + Phi_G * Q * Phi_G.getT()
+
+	def bd_observation_update(self, bearing, bearing_std, distance, distance_std):
+
+		[_theta, _x, _y] = self.mean.toEuclidean()
+
+		dx = landmark[0]-_x
+		dy = landmark[1]-_y
+
+		distance_cov = distance_std ** 2
+		bearing_cov = bearing_std ** 2
+
+		est_bearing = (math.atan2(dy, dx) - _theta) % (2*math.pi)
+		est_distance = math.sqrt(math.pow(dx,2) + math.pow(dy,2))
+
+		observ = np.matrix([[bearing], [distance]])
+		est_observ = np.matrix([[est_bearing], [est_distance]])
+
+		H = np.matrix([[-1, dy/(math.pow(dx,2) + math.pow(dy,2)), -dx/(math.pow(dx,2) + math.pow(dy,2))], 
+			[0, -dx/est_distance, -dy/est_distance]])
+
+		S = np.matrix([[bearing_cov, 0],[0, distance_cov]]) + H * self.cov * H.getT()
+
+		innovation = observ - est_observ
+		innovation[0] = ((innovation[0] + math.pi) % (2*math.pi)) - math.pi
+
+		m_t = self.cov * H.getT() * S.getI() * innovation
+		self.mean = self.mean * exp_SE2(m_t)
+
+		self.cov = self.cov - self.cov * H.getT() * S.getI() * H * self.cov
+
+
+
+	def read_estimation(self):
+		return self.mean.toEuclidean()
+	
+
+
+
 ########
 
 def func_A(x):
@@ -411,7 +472,7 @@ def mean_of_cct(kappa_1, kappa_2):
 
 
 
-
+'''
 
 
 class LieSpatialState:
@@ -427,6 +488,9 @@ class LieSpatialState:
 
 		self.mean = s
 		self.cov = _cov
+
+	def read_estimation(self):
+		return [np.arctan2(self.mean.item(1,0), self.mean.item(0,0)), self.mean.item(0,2), self.mean.item(1,2)]
 
 
 	def get_mean_and_cov(self):
@@ -491,3 +555,5 @@ class LieSpatialState:
 
 
 		self.cov = P
+
+'''

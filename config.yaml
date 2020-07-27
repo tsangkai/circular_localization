@@ -21,20 +21,20 @@ w_std: 0.4
 
 # translational velocity
 v: 0.3  # m/s
-v_std: 0.06 
+v_std: 0.03
 
 
 ##### Observation update noise parameter
 phi_cct: 400.0
-d_std: 0.7 
+d_std: 0.01 #0.7 
 
 
 ##### Case
 unkonwn_theta_cov: 100.0
 
 color: {
-    navy: (34.0/255, 58.0/255, 94.0/255),
-    grenadine: (220.0/255, 76.0/255, 70.0/255),
-    spruce: (0, 89.0/255, 96.0/255),
-    mustard: (216.0/255, 174.0/255, 71.0/255)
+    navy:      [0.1333, 0.2275, 0.3686],
+    grenadine: [0.8627, 0.2980, 0.2745],
+    spruce:    [0.0000, 0.3490, 0.3765],
+    mustard:   [0.8471, 0.6824, 0.2784]
 }
