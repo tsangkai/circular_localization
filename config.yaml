@@ -16,7 +16,7 @@ num_t: 10 # number of time updates for each observation update
 ##### Time update noise parameter
 
 # angular velocity
-w: 0.8  # 1  # rad/s
+w: 0.8    # rad/s
 w_std: 0.4
 
 # translational velocity

@@ -1,28 +1,25 @@
 # estimation error vs the number of trials
-import yaml
-
 import numpy as np
-import math
 
+import yaml
 import matplotlib.pyplot as plt
-
 
 import Agent
 
-# import Parameter
+### import parameters
 
 with open('config.yaml') as config_file:
 	config = yaml.load(config_file, Loader=yaml.FullLoader)
 
-
 N = config['num_of_trial'] 
-
 
 num_T = config['num_T'] 
 num_t = config['num_t'] 
 
 total_sample_number = (num_t+1) * num_T
 
+
+### output data
 
 time_arr = np.zeros([total_sample_number, 1])    
 
