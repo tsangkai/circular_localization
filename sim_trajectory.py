@@ -161,19 +161,21 @@ output_traj_file.close()
 
 # visualization
 
-navy = (34.0/255, 58.0/255, 94.0/255)
-grenadine = (220.0/255, 76.0/255, 70.0/255)
-spruce = (0, 89.0/255, 96.0/255)
-mustard = (216.0/255, 174.0/255, 71.0/255)
+plot_color = {
+	'EKF': config['color']['grenadine'],
+	'LG-EKF': config['color']['mustard'],
+	'hybrid': config['color']['navy'],
+	'circular': config['color']['spruce']
+}
 
 plt.figure(1)
 
 plt.plot(groundtruth[:,0], groundtruth[:,1], 'k', linewidth=1.6, label = 'groundtruth')
 
-plt.plot(data_ekf[:,0], data_ekf[:,1], '--', color = grenadine, linewidth=1.6, label = 'EKF')
-plt.plot(data_hybrid[:,0], data_hybrid[:,1],'--',  color = mustard, linewidth=1.6, label = 'hybrid')
-plt.plot(data_circular[:,0], data_circular[:,1],'--',  color = navy, linewidth=1.6, label = 'circular')
-plt.plot(data_lie[:,0], data_lie[:,1],'--',  color = spruce, linewidth=1.6, label = 'Lie EKF')
+plt.plot(data_ekf[:,0], data_ekf[:,1], '--', color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
+plt.plot(data_hybrid[:,0], data_hybrid[:,1],'--',  color = plot_color['hybrid'], linewidth=1.6, label = 'hybrid')
+plt.plot(data_circular[:,0], data_circular[:,1],'--',  color = plot_color['circular'], linewidth=1.6, label = 'circular')
+plt.plot(data_lie[:,0], data_lie[:,1],'--',  color = plot_color['LG-EKF'], linewidth=1.6, label = 'LG-EKF')
 
 plt.xlabel('x (m)')
 plt.ylabel('y (m)')
