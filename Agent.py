@@ -4,14 +4,17 @@ import math
 import cmath
 
 import Estimators
-import Parameter
+# import Parameter
 
+import yaml
 
+with open('config.yaml') as config_file:
+	config = yaml.load(config_file, Loader=yaml.FullLoader)
 
 
 
 class Agent:
-	def __init__(self, _theta = 0.0, _position = [0,0]):
+	def __init__(self, _theta = 0.0, _position = [0,0], _init_theta_given = True):
 
 		# parameter
 		self.time = 0.0
@@ -21,57 +24,42 @@ class Agent:
 		self.position = _position
 
 
+		if _init_theta_given:
 
 
-		# kown initial case (trajectory sim)
-		'''
-		initial_state = np.matrix([_theta, _position[0], _position[1]]).getT()
-		initial_cov = _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])
+			initial_state = np.matrix([_theta, _position[0], _position[1]]).getT()
+			initial_cov = _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])
 
-		self.EKF_estimate = Estimators.GaussianSpatialState()
-		self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=1.0/0.01, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
-		self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/0.01)
-		self.lie_estimate = Estimators.LieGroupSpatialState(_mean=initial_state, _cov=initial_cov)      
-		'''
+			self.EKF_estimate = Estimators.GaussianSpatialState()
+			self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=1.0/0.01, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
+			self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/0.01)
+			self.lie_estimate = Estimators.LieGroupSpatialState(_mean=initial_state, _cov=initial_cov)      
 
-		# unkown initial case (dynamic sim)
-		theta_cov = 1.0 / Parameter.unkonwn_theta_cct
-		initial_state = np.matrix([0, 0, 0]).getT()
-		initial_cov = _cov=np.matrix([[theta_cov,0,0], [0,0.01,0], [0,0,0.01]])
+		else:      # unkown initial case (dynamic sim)
+			theta_cov = 1.0 / config['unkonwn_theta_cct']
+			initial_state = np.matrix([0, 0, 0]).getT()
+			initial_cov = _cov=np.matrix([[theta_cov,0,0], [0,0.01,0], [0,0,0.01]])
 
-		
-		self.EKF_estimate = Estimators.GaussianSpatialState(initial_state, initial_cov)
-		self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=Parameter.unkonwn_theta_cct, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
-		# self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/theta_cov)
-		self.lie_estimate = Estimators.LieGroupSpatialState(_mean=np.matrix([[0.0], [0.0], [0.0]]), _cov=initial_cov)      
+			
+			self.EKF_estimate = Estimators.GaussianSpatialState(initial_state, initial_cov)
+			self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=config['unkonwn_theta_cct'], _x=0, _x_std=0.01, _y=0, _y_std=0.01)
+			# self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/theta_cov)
+			self.lie_estimate = Estimators.LieGroupSpatialState(initial_state, initial_cov)     
 
-
-		# unkown initial case of all estimation
-		'''
-		theta_cov = 1.0 / Parameter.unkonwn_theta_cct
-		initial_state = np.matrix([[0], [0], [0]])
-
-		initial_cov = np.matrix([[theta_cov,0,0], [0,10,0], [0,0,10]])
-
-		self.EKF_estimate = Estimators.GaussianSpatialState(_mean = initial_state, _cov=initial_cov)
-		self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=1.0/theta_cov, _x=0, _x_std=10, _y=0, _y_std=10)
-		# self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/theta_cov)
-		# self.lie_estimate = Estimators.LieSpatialState(_mean=np.matrix([[0.0], [0.0], [0.0]]), _cov=initial_cov)      
-		'''
 
 
 
 	def time_update(self):
-		dt = Parameter.dt # s
+		dt = config['dt'] # s
 		self.time += dt
 
 		# angular velocity
-		w = Parameter.w
-		w_std = Parameter.w_std
+		w = config['w'] #Parameter.w
+		w_std = config['w_std'] #Parameter.w_std
 
 		# translational velocity
-		v = Parameter.v
-		v_std = Parameter.v_std
+		v = config['v'] #Parameter.v
+		v_std = config['v_std'] #Parameter.v_std
         
 		real_v = v + np.random.normal(0, v_std)
 		real_w = w + np.random.normal(0, w_std)
@@ -93,9 +81,9 @@ class Agent:
 	def rel_observation_update(self):
 
 		# parameters
-		landmark = Parameter.landmark_position
+		landmark = config['landmark_position']
 
-		d_std = Parameter.d_std
+		d_std = config['d_std'] #Parameter.d_std
 
 		# observation construction
 		observation = np.matrix(landmark).getT() - np.matrix(self.position).getT() + np.matrix([[np.random.normal(0, d_std)],[np.random.normal(0, d_std)]])
@@ -104,12 +92,13 @@ class Agent:
 		# estimate update
 		self.EKF_estimate.rel_observation_update(observation, d_std)
 
+
 	def direct_observation_update(self):
 
-		obs_theta_cct = Parameter.phi_cct
+		obs_theta_cct = config['phi_cct'] # Parameter.phi_cct
 		obs_theta = self.theta + np.random.vonmises(0, obs_theta_cct)
 
-		obs_std = Parameter.d_std
+		obs_std = config['d_std'] # Parameter.d_std
 		obs_x = self.position[0] + np.random.normal(0, obs_std)
 		obs_y = self.position[1] + np.random.normal(0, obs_std)
 
@@ -119,11 +108,11 @@ class Agent:
 	def bd_observation_update(self):
 
 		# parameters
-		landmark = Parameter.landmark_position
+		landmark = config['landmark_position']
 
-		phi_cct = Parameter.phi_cct
+		phi_cct = config['phi_cct'] #Parameter.phi_cct
 		phi_std = 1.0 / math.sqrt(phi_cct) #0.01
-		d_std = Parameter.d_std
+		d_std = config['d_std'] #Parameter.d_std
 		
 		
 		dx = landmark[0] - self.position[0]

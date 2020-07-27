@@ -21,15 +21,9 @@ num_t = config['num_t']
 total_sample_number = (num_t+1) * num_T
 
 
-#time_arr = np.zeros([total_sample_number, 1])    
-
-#groundtruth = np.zeros([total_sample_number, 2])
-
-#data_ekf = np.zeros([total_sample_number, 2])
 error_ekf = np.zeros([1, 2])
 error_ekf_2 = np.zeros([1, 2])
 
-#data_hybrid = np.zeros([total_sample_number, 2])
 error_hybrid = np.zeros([1, 2])
 error_hybrid_2 = np.zeros([1, 2])
 
@@ -40,8 +34,8 @@ error_lie_2 = np.zeros([1, 2])
     
 for n in range(N):
 
-	agent_1 = Agent.Agent(_theta = np.random.vonmises(0, config['unkonwn_theta_cov']), _position = [0,0])
-
+	init_theta = np.random.vonmises(0, config['unkonwn_theta_cct'])
+	agent_1 = Agent.Agent(_theta=init_theta, _position=[0,0], _init_theta_given=False)
 
 	for T in range(num_T):
 
@@ -49,8 +43,6 @@ for n in range(N):
 
 			agent_1.time_update()
 			
-
-
 			# EKF
 			[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
@@ -115,7 +107,7 @@ for n in range(N):
 
 
 print('\ninitial concentration parameter')
-print(config['unkonwn_theta_cov'])
+print(config['unkonwn_theta_cct'])
 print('EKF error')
 print(error_ekf[0,1]/(total_sample_number*N))
 print(math.sqrt(total_sample_number*N*error_ekf_2[0,1] - error_ekf[0,1]**2)/(total_sample_number*N))
@@ -127,9 +119,9 @@ print(error_lie[0,1]/(total_sample_number*N))
 print(math.sqrt(total_sample_number*N*error_lie_2[0,1] - error_lie[0,1]**2)/(total_sample_number*N))
 
 
-output_init_file = open("sim_result/initial.txt", "a")
+output_init_file = open("result/initial.txt", "a")
 
-output_str = '{:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4}\n'.format(config['unkonwn_theta_cov'], error_ekf[0,0] / (total_sample_number*N), error_ekf[0,1] / (total_sample_number*N), error_hybrid[0,0] / (total_sample_number*N), error_hybrid[0,1] / (total_sample_number*N), error_lie[0,0] / (total_sample_number*N), error_lie[0,1] / (total_sample_number*N))
+output_str = '{:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4}\n'.format(config['unkonwn_theta_cct'], error_ekf[0,0] / (total_sample_number*N), error_ekf[0,1] / (total_sample_number*N), error_hybrid[0,0] / (total_sample_number*N), error_hybrid[0,1] / (total_sample_number*N), error_lie[0,0] / (total_sample_number*N), error_lie[0,1] / (total_sample_number*N))
 
 output_init_file.write(output_str)
 output_init_file.close()

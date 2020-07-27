@@ -37,7 +37,7 @@ error_circular = np.zeros([total_sample_number, 2])
 data_lie = np.zeros([total_sample_number, 2])
 error_lie = np.zeros([total_sample_number, 2])
 
-output_traj_file = open("sim_result/trajectory.txt", "w")
+output_traj_file = open("result/trajectory.txt", "w")
 
 
 # simulation
@@ -184,7 +184,7 @@ plt.ylabel('y (m)')
 # plt.ylim([-0.1, 1.1])
 
 plt.legend()
-plt.savefig('sim_result/trajectory.png')
+plt.savefig('result/trajectory.png')
 plt.show()
 
 

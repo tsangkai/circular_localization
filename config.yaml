@@ -30,7 +30,7 @@ d_std: 0.01
 
 
 ##### Case
-unkonwn_theta_cov: 100.0
+unkonwn_theta_cct: 500.0
 
 color: {
     navy:      [0.1333, 0.2275, 0.3686],

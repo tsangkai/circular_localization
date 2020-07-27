@@ -3,17 +3,22 @@ from scipy import special
 
 import numpy as np
 import sys
+import yaml
+
 
 import math
 import cmath
-import Parameter
+# import Parameter
 
 from LieGroup import *
 
-from lie_group_func import *
+# from lie_group_func import *
+
+with open('config.yaml') as config_file:
+	config = yaml.load(config_file, Loader=yaml.FullLoader)
 
 
-landmark = Parameter.landmark_position
+landmark = config['landmark_position']
 
 class GaussianEstimate:
 	def __init__(self, _mean=0, _std=0.01):
