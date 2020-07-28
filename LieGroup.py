@@ -1,9 +1,7 @@
 
 
 import numpy as np
-
 import math
-import cmath
 
 
 class LieGroup:
@@ -29,8 +27,6 @@ def Phi(_vector):
 	ad_rep = adjoint_rep(_vector)
 	ad_rep_prod = np.matrix([[1.0,0,0],[0,1.0,0],[0,0,1.0]])
 
-
-
 	for i in range(20):
 		output_matrix = output_matrix + (math.pow(-1,i)/math.factorial(i)) * ad_rep_prod
 		ad_rep_prod = ad_rep_prod * ad_rep
@@ -46,13 +42,13 @@ def Adjoint_rep(input_lg):
 
 	return LieGroup(_theta, _x, _y)
 
-def adjoint_rep(_vector):   # input is in R^3
+def adjoint_rep(_vector):            # input is in R^3
 	return np.matrix([[0, 0, 0],
 		[0, -_vector[2,0], -_vector[0,0]],
 		[-_vector[1,0], -_vector[0,0], 0]])
 
 
-def exp_SE2(_vector):  # 3*1 vector
+def exp_SE2(_vector):                # input is in R^3
 	_theta = _vector[0,0]
 	_x = _vector[1,0]
 	_y = _vector[2,0]

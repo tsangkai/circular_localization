@@ -1,24 +1,22 @@
 
-from scipy import special
 
 import numpy as np
-import sys
 import yaml
 
-
+from scipy import special
 import math
 import cmath
-# import Parameter
 
 from LieGroup import *
 
-# from lie_group_func import *
+
+### import parameters
 
 with open('config.yaml') as config_file:
 	config = yaml.load(config_file, Loader=yaml.FullLoader)
 
-
 landmark = config['landmark_position']
+
 
 class GaussianEstimate:
 	def __init__(self, _mean=0, _std=0.01):
@@ -177,15 +175,6 @@ class HybridSpatialState:
 		_equ_x = landmark[0] - distance * func_A(bearing_cct) * func_A(self.theta_est.concentration) * math.cos(self.theta_est.phase + bearing)
 		_equ_y = landmark[1] - distance * func_A(bearing_cct) * func_A(self.theta_est.concentration) * math.sin(self.theta_est.phase + bearing)
 
-		'''
-		print([bearing_cct, func_A(bearing_cct)])
-		print([self.theta_est.concentration, func_A(self.theta_est.concentration)])
-
-		print([self.x_est.mean, self.y_est.mean])
-		print([_equ_x, _equ_y, _equ_phase_cct])
-		
-		'''
-
 		_equ_std = math.sqrt(distance_cov + distance**2)
 
 		# estimate update
@@ -300,21 +289,15 @@ class CircularSpatialState:
 	def _grid_to_catesian(self, module_array):
 		_num = 801
 
-
 		_space = np.linspace(-1.2, 1.2, num=_num)
 		_likelihood = np.zeros_like(_space)
-
 
 		for i in range(_num):
 			_point = _space[i]
 			for module in module_array:
 				_likelihood[i] += module.estimate.concentration * math.cos(2.0*math.pi*_point/module.scale - module.estimate.phase)
 
-		# print(_likelihood)
-		# raw_input()
 		return _space[np.argmax(_likelihood)]
-
-
 
 	def cartesian_readout(self):
 		return [self._grid_to_catesian(self.module_x_array), self._grid_to_catesian(self.module_y_array)]
@@ -333,7 +316,6 @@ class LieGroupSpatialState:
 	def __init__(self, _mean=np.matrix([[0.0], [0.0], [0.0]]), _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])):
 		self.mean = LieGroup(_mean.item(0,0), _mean.item(1,0), _mean.item(2,0))
 		self.cov = _cov
-
 
 	def time_update(self, input_w, input_w_std, input_v, input_v_std, dt):
 		u_t = np.matrix([[input_w*dt], [input_v*dt], [0]])
@@ -375,8 +357,6 @@ class LieGroupSpatialState:
 
 		self.cov = self.cov - self.cov * H.getT() * S.getI() * H * self.cov
 
-
-
 	def read_estimation(self):
 		return self.mean.toEuclidean()
 	
@@ -388,31 +368,36 @@ class LieGroupSpatialState:
 def func_A(x):
 	return np.divide(special.iv(1, x), special.iv(0, x))
 
+def func_A_Deriv(kappa): #Same as f' referenced in Song
+	aTemp =  func_A(kappa)
+	return (1-aTemp*(aTemp+1/kappa))
+
+def kEst(outputVal): #determine the estimation step thru slope (Originated with Banerjee, used by Sra, Song)
+	return (outputVal*(2-np.power(outputVal, 2))/(1-np.power(outputVal, 2)))
+
+def inv_func_A_sra(x, iterations = 5):  #Reference Sra Paper
+	kappa = kEst(x)
+	for i in range(iterations):
+		kappa = kappa-(func_A(kappa)-x)/func_A_Deriv(kappa) #forgot to subtract by outputVal
+	return kappa
+
+def mean_of_cct(kappa_1, kappa_2):
+	return inv_func_A_sra(func_A(kappa_1)*func_A(kappa_2))
 
 
 
+'''
 def func_A_approx(x):
 
 	I_1 = 1 - 3.0/(8*x) - 15.0/(128*x*x)
 	I_0 = 1 + 1.0/(8*x) + 9.0/(128*x*x)
 
 	return I_1 / I_0
+'''
 
 
-def func_A_Deriv(kappa): #Same as f' referenced in Song
-   aTemp =  func_A(kappa)
-   return (1-aTemp*(aTemp+1/kappa))
 
-def kEst(outputVal): #determine the estimation step thru slope (Originated with Banerjee, used by Sra, Song)
-   return (outputVal*(2-np.power(outputVal, 2))/(1-np.power(outputVal, 2)))
-
-def inv_func_A_sra(x, iterations = 5):  #Reference Sra Paper
-    kappa = kEst(x)
-    for i in range(iterations):
-        kappa = kappa-(func_A(kappa)-x)/func_A_Deriv(kappa) #forgot to subtract by outputVal
-    return kappa
-
-
+'''
 def inv_func_A(y):
 
 	_accuracy = 0.00000000000001
@@ -468,97 +453,5 @@ def inv_func_A_nr(y):
 			x = x_next
 
 		return x
-
-def mean_of_cct(kappa_1, kappa_2):
-
-	return inv_func_A_sra(func_A(kappa_1)*func_A(kappa_2))
-
-
-
-
-
 '''
 
-
-class LieSpatialState:
-	def __init__(self, _mean=np.matrix([[0.0], [0.0], [0.0]]), _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])):
-		
-		theta = _mean.item(0,0)
-		x = _mean.item(1,0)
-		y = _mean.item(2,0)
-
-		s = np.matrix([[math.cos(theta), -1*math.sin(theta), x],
-						[math.sin(theta), math.cos(theta), y],
-						[0, 0, 1]])
-
-		self.mean = s
-		self.cov = _cov
-
-	def read_estimation(self):
-		return [np.arctan2(self.mean.item(1,0), self.mean.item(0,0)), self.mean.item(0,2), self.mean.item(1,2)]
-
-
-	def get_mean_and_cov(self):
-		s = self.mean
-		x = s.item((0, 2))
-		y = s.item((1, 2))
-		theta = math.atan2(s.item(1,0), s.item(1,1)) % (2*math.pi)
-		
-		if theta < 0:
-			print(theta)
-			sys.exit('negative theta!')
-
-		trace_state_covar = np.trace(self.cov)
-		return [x, y, theta], self.cov
-
-
-	def time_update(self, input_w, input_w_std, input_v, input_v_std, dt):
-		input_w_cov = math.pow(input_w_std, 2)
-		input_v_cov = math.pow(input_v_std, 2)
-
-		u = np.matrix([[input_w],[input_v],[0]])
-		self.mean = self.mean * exp_G(u)
-
-		Q = dt*dt*np.matrix([[input_w_cov, 0, 0],[0, input_v_cov, 0], [0 ,0, 0]])
-		F = ad_G(exp_G(-1*u))
-		self.cov = F*self.cov*F.getT()+phi_G(u)*Q*phi_G(u).getT()
-
-	def bd_observation_update(self, bearing, bearing_cct, distance, distance_std):
-		pass
-		distance_cov = math.pow(distance_std, 2)
-		bearing_cov = 1.0/bearing_cct
-		R = np.matrix([[bearing_cov, 0],[0, distance_cov]])
-
-		[x, y, theta], _cov = self.get_mean_and_cov()
-		dx = landmark[0]-x
-		dy = landmark[1]-y
-
-		r = distance 
-		P = self.cov
-
-		sin_theta = math.sin(theta)
-		cos_theta = math.cos(theta)
-
-		H_t = np.matrix([[-dx*sin_theta+dy*cos_theta, -1, 0],[-dx*cos_theta-dy*sin_theta, 0, -1]])
-
-		
-		V = np.matrix([[math.cos(bearing), -r*math.sin(bearing)], [math.sin(bearing), r*math.cos(bearing)]])
-		R = V*R*V.getT()
-		K_t = P*H_t.getT()*(H_t*P*H_t.getT()+R).getI()
-
-		h_x = func_R(theta).getT()*np.matrix([[dx],[dy]])
-
-		z = np.matrix([[r*math.cos(bearing)],[r*math.sin(bearing)]])
-
-		m = K_t*(z-h_x)
-		   
-		self.mean  = self.mean * exp_G(m)
-
-		V = np.matrix([[math.cos(bearing), -r*math.sin(bearing)], [math.sin(bearing), r*math.cos(bearing)]])
-		R_t = V*R*V.getT() 
-		P = phi_G(m) * (P.getI()+H_t.getT()*R_t.getI()*H_t).getI() * phi_G(m).getT()
-
-
-		self.cov = P
-
-'''
