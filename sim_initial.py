@@ -41,10 +41,9 @@ for theta_ccr in theta_ccr_arr:
 	for n in range(N):
 
 		init_theta = np.random.vonmises(0, theta_ccr)
-		agent_1 = Agent.Agent(_theta=init_theta, _position=[0,0], _init_theta_given=False)
+		agent_1 = Agent.Agent(_theta=init_theta, _position=[0,0], _init_theta_given=False, _init_theta_cct=theta_ccr)
 
 		for T in range(num_T):
-
 			for t in range(num_t):
 
 				agent_1.time_update()

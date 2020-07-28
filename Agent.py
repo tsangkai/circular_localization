@@ -14,7 +14,7 @@ with open('config.yaml') as config_file:
 
 
 class Agent:
-	def __init__(self, _theta = 0.0, _position = [0,0], _init_theta_given = True):
+	def __init__(self, _theta=0.0, _position=[0,0], _init_theta_given=True, _init_theta_cct=1.0):
 
 		# parameter
 		self.time = 0.0
@@ -25,8 +25,6 @@ class Agent:
 
 
 		if _init_theta_given:
-
-
 			initial_state = np.matrix([_theta, _position[0], _position[1]]).getT()
 			initial_cov = _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])
 
@@ -35,14 +33,14 @@ class Agent:
 			self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/0.01)
 			self.lie_estimate = Estimators.LieGroupSpatialState(_mean=initial_state, _cov=initial_cov)      
 
-		else:      # unkown initial case (dynamic sim)
-			theta_cov = 1.0 / config['unkonwn_theta_cct']
+		else:                                    # unkown initial case (dynamic sim)
+			theta_cov = 1.0 / _init_theta_cct 
 			initial_state = np.matrix([0, 0, 0]).getT()
 			initial_cov = _cov=np.matrix([[theta_cov,0,0], [0,0.01,0], [0,0,0.01]])
 
 			
 			self.EKF_estimate = Estimators.GaussianSpatialState(initial_state, initial_cov)
-			self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=config['unkonwn_theta_cct'], _x=0, _x_std=0.01, _y=0, _y_std=0.01)
+			self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=_init_theta_cct, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
 			# self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=1.0/theta_cov)
 			self.lie_estimate = Estimators.LieGroupSpatialState(initial_state, initial_cov)     
 
