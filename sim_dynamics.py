@@ -14,7 +14,7 @@ import Agent
 with open('config.yaml') as config_file:
 	config = yaml.load(config_file, Loader=yaml.FullLoader)
 
-N = 20 #config['num_of_trial'] 
+N = config['num_of_trial'] 
 
 num_T = config['num_T'] 
 num_t = config['num_t'] 
@@ -26,18 +26,9 @@ total_sample_number = (num_t+1) * num_T
 
 time_arr = np.zeros([total_sample_number, 1])    
 
-# groundtruth = np.zeros([total_sample_number, 2])
-
-# data_ekf = np.zeros([total_sample_number, 2])
 error_ekf = np.zeros([total_sample_number, 2])
-
-# data_hybrid = np.zeros([total_sample_number, 2])
 error_hybrid = np.zeros([total_sample_number, 2])
-
-# data_circular = np.zeros([total_sample_number, 2])
 error_circular = np.zeros([total_sample_number, 2])
-
-# data_lie = np.zeros([total_sample_number, 2])
 error_lie = np.zeros([total_sample_number, 2])
 
 
