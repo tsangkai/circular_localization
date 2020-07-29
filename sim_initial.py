@@ -44,6 +44,7 @@ for theta_ccr in theta_ccr_arr:
 		agent_1 = Agent.Agent(_theta=init_theta, _position=[0,0], _init_theta_given=False, _init_theta_cct=theta_ccr)
 
 		for T in range(num_T):
+			
 			for t in range(num_t):
 
 				agent_1.time_update()

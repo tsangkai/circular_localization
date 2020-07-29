@@ -13,6 +13,7 @@ import Agent
 with open('config.yaml') as config_file:
 	config = yaml.load(config_file, Loader=yaml.FullLoader)
 
+
 num_T = config['num_T'] 
 num_t = config['num_t'] 
 
@@ -42,7 +43,7 @@ output_traj_file = open("result/trajectory.txt", "w")
 
 # simulation
 
-agent_1 = Agent.Agent()
+agent_1 = Agent.Agent(_theta=-2.0)
 
 i = 0
 for T in range(num_T):

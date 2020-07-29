@@ -124,8 +124,6 @@ class GaussianSpatialState:
 	def read_estimation(self):
 		return [self.mean[0,0], self.mean[1,0], self.mean[2,0]]
 	
-
-
 ###	
 
 class HybridSpatialState:
@@ -183,8 +181,6 @@ class HybridSpatialState:
 
 	def read_estimation(self):
 		return [self.theta_est.phase, self.x_est.mean, self.y_est.mean]
-
-
 
 
 #########
@@ -285,10 +281,10 @@ class CircularSpatialState:
 
 
 
-	def _grid_to_catesian(self, module_array):
+	def _grid_to_catesian(self, module_array, max_value=1.2, min_value=-1.2):
 		_num = 801
 
-		_space = np.linspace(-1.2, 1.2, num=_num)
+		_space = np.linspace(min_value, max_value, num=_num)
 		_likelihood = np.zeros_like(_space)
 
 		for i in range(_num):
@@ -299,7 +295,9 @@ class CircularSpatialState:
 		return _space[np.argmax(_likelihood)]
 
 	def cartesian_readout(self):
-		return [self._grid_to_catesian(self.module_x_array), self._grid_to_catesian(self.module_y_array)]
+		_x = self._grid_to_catesian(self.module_x_array)
+		_y = self._grid_to_catesian(self.module_y_array)
+		return [_x, _y]
 
 	def read_estimation(self):
 		[_x, _y] = self.cartesian_readout()
@@ -327,6 +325,47 @@ class LieGroupSpatialState:
 			[0, 0, 0]])
 		self.cov = F_t * self.cov * F_t.getT() + Phi_G * Q * Phi_G.getT()
 
+	def bd_observation_update_4(self, bearing, bearing_std, distance, distance_std):
+
+		[_theta, _x, _y] = self.mean.toEuclidean()
+
+		dx = landmark[0]-_x
+		dy = landmark[1]-_y
+
+		sin_theta = math.sin(_theta)
+		cos_theta = math.cos(_theta)
+
+		H = np.matrix([[-dx*sin_theta+dy*cos_theta, -cos_theta, -sin_theta],
+			           [-dx*cos_theta-dy*sin_theta,  sin_theta, -cos_theta]])
+
+
+		b_cct = 1.0 / bearing_std**2
+		I1_to_I0 = np.divide(special.iv(1, b_cct), special.iv(0, b_cct))		
+		I2_to_I0 = np.divide(special.iv(2, b_cct), special.iv(0, b_cct))
+
+		v = distance * I1_to_I0 * np.matrix([[math.cos(bearing)],[math.sin(bearing)]])
+		
+		R_t = 0.5 * (distance**2 + distance_std**2) *  np.matrix([[1+I2_to_I0*math.cos(2*bearing), I2_to_I0*math.sin(2*bearing)],
+		                [I2_to_I0*math.sin(2*bearing),   1-I2_to_I0*math.cos(2*bearing)]]) - v * v.getT()
+
+		K_t = self.cov * H.getT() * ( H*self.cov*H.getT() + R_t).getI()
+
+
+		observ = np.matrix([[distance*math.cos(bearing)], [distance*math.sin(bearing)]])   # z_t
+
+		rot_mtx_T = np.matrix([[cos_theta, sin_theta],
+			[-sin_theta, cos_theta]])
+
+		est_observ = np.matrix([[cos_theta, sin_theta], [-sin_theta, cos_theta]]) * np.matrix([[dx],[dy]])
+
+
+		m_t = K_t * (observ - est_observ)
+		self.mean = self.mean * exp_SE2(m_t)
+
+		Phi_G = Phi(m_t)
+
+		self.cov = Phi_G * (self.cov.getI() + H.getT()*R_t.getI()*H).getI() * Phi_G.getT()
+
 	def bd_observation_update(self, bearing, bearing_std, distance, distance_std):
 
 		[_theta, _x, _y] = self.mean.toEuclidean()
@@ -338,15 +377,15 @@ class LieGroupSpatialState:
 		bearing_cov = bearing_std ** 2
 
 		est_bearing = (math.atan2(dy, dx) - _theta) % (2*math.pi)
-		est_distance = math.sqrt(math.pow(dx,2) + math.pow(dy,2))
-
-		observ = np.matrix([[bearing], [distance]])
-		est_observ = np.matrix([[est_bearing], [est_distance]])
+		est_distance = math.sqrt(dx**2 + dy**2)
 
 		H = np.matrix([[-1, dy/(math.pow(dx,2) + math.pow(dy,2)), -dx/(math.pow(dx,2) + math.pow(dy,2))], 
 			[0, -dx/est_distance, -dy/est_distance]])
 
 		S = np.matrix([[bearing_cov, 0],[0, distance_cov]]) + H * self.cov * H.getT()
+
+		observ = np.matrix([[bearing], [distance]])
+		est_observ = np.matrix([[est_bearing], [est_distance]])
 
 		innovation = observ - est_observ
 		innovation[0] = ((innovation[0] + math.pi) % (2*math.pi)) - math.pi
@@ -354,7 +393,9 @@ class LieGroupSpatialState:
 		m_t = self.cov * H.getT() * S.getI() * innovation
 		self.mean = self.mean * exp_SE2(m_t)
 
-		self.cov = self.cov - self.cov * H.getT() * S.getI() * H * self.cov
+		Phi_G = Phi(m_t)
+
+		self.cov = Phi_G * (self.cov - self.cov * H.getT() * S.getI() * H * self.cov) * Phi_G.getT()
 
 	def read_estimation(self):
 		return self.mean.toEuclidean()
@@ -382,75 +423,4 @@ def inv_func_A_sra(x, iterations = 5):  #Reference Sra Paper
 
 def mean_of_cct(kappa_1, kappa_2):
 	return inv_func_A_sra(func_A(kappa_1)*func_A(kappa_2))
-
-
-
-'''
-def func_A_approx(x):
-
-	I_1 = 1 - 3.0/(8*x) - 15.0/(128*x*x)
-	I_0 = 1 + 1.0/(8*x) + 9.0/(128*x*x)
-
-	return I_1 / I_0
-'''
-
-
-
-'''
-def inv_func_A(y):
-
-	_accuracy = 0.00000000000001
-
-	_upper_limit = 700
-	_middle_value = 1.1593199207635498   # func_A( ) = 0.50000000000427447
-	_lower_limit =  0.0000000000001
-
-
-	while _upper_limit - _lower_limit > _accuracy:
-
-		# if y >= func_A(_middle_value):
-		#	_lower_limit = _middle_value
-
-		# else:
-		#	_upper_limit = _middle_value
-
-
-		if y < func_A(_middle_value):
-			_upper_limit = _middle_value
-
-		else:
-			_lower_limit = _middle_value
-
-		_middle_value = 0.5 * (_upper_limit+_lower_limit)
-
-	return _middle_value
-
-
-def inv_func_A_nr(y):
-
-	x = 1.16
-	diff = 10.0
-
-	if y == 0:
-		return .00000000000001
-	elif y > .5:
-
-		while (x < 700) and (diff > 0.1):
-			func_value = func_A(x)
-			x_next = x - (func_value-y)/(1 - func_value*(func_value + 1.0/y))
-			diff = abs(x - x_next)
-			x = x_next
-
-		return min(x, 700)
-
-	else:
-
-		while diff > 0.00000000000001:
-			func_value = func_A(x)
-			x_next = x - (func_value-y)/(1 - func_value*(func_value + 1.0/y))
-			diff = abs(x - x_next)
-			x = x_next
-
-		return x
-'''
 
