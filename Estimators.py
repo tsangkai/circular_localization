@@ -325,46 +325,6 @@ class LieGroupSpatialState:
 			[0, 0, 0]])
 		self.cov = F_t * self.cov * F_t.getT() + Phi_G * Q * Phi_G.getT()
 
-	def bd_observation_update_4(self, bearing, bearing_std, distance, distance_std):
-
-		[_theta, _x, _y] = self.mean.toEuclidean()
-
-		dx = landmark[0]-_x
-		dy = landmark[1]-_y
-
-		sin_theta = math.sin(_theta)
-		cos_theta = math.cos(_theta)
-
-		H = np.matrix([[-dx*sin_theta+dy*cos_theta, -cos_theta, -sin_theta],
-			           [-dx*cos_theta-dy*sin_theta,  sin_theta, -cos_theta]])
-
-
-		b_cct = 1.0 / bearing_std**2
-		I1_to_I0 = np.divide(special.iv(1, b_cct), special.iv(0, b_cct))		
-		I2_to_I0 = np.divide(special.iv(2, b_cct), special.iv(0, b_cct))
-
-		v = distance * I1_to_I0 * np.matrix([[math.cos(bearing)],[math.sin(bearing)]])
-		
-		R_t = 0.5 * (distance**2 + distance_std**2) *  np.matrix([[1+I2_to_I0*math.cos(2*bearing), I2_to_I0*math.sin(2*bearing)],
-		                [I2_to_I0*math.sin(2*bearing),   1-I2_to_I0*math.cos(2*bearing)]]) - v * v.getT()
-
-		K_t = self.cov * H.getT() * ( H*self.cov*H.getT() + R_t).getI()
-
-
-		observ = np.matrix([[distance*math.cos(bearing)], [distance*math.sin(bearing)]])   # z_t
-
-		rot_mtx_T = np.matrix([[cos_theta, sin_theta],
-			[-sin_theta, cos_theta]])
-
-		est_observ = np.matrix([[cos_theta, sin_theta], [-sin_theta, cos_theta]]) * np.matrix([[dx],[dy]])
-
-
-		m_t = K_t * (observ - est_observ)
-		self.mean = self.mean * exp_SE2(m_t)
-
-		Phi_G = Phi(m_t)
-
-		self.cov = Phi_G * (self.cov.getI() + H.getT()*R_t.getI()*H).getI() * Phi_G.getT()
 
 	def bd_observation_update(self, bearing, bearing_std, distance, distance_std):
 

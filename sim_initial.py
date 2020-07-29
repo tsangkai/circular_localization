@@ -118,6 +118,7 @@ for theta_ccr in theta_ccr_arr:
 			error_lie_2[0,0] += or_error ** 2
 			error_lie_2[0,1] += loc_error ** 2
 
+		del agent_1
 
 	orientation_err[0, theta_ccr_idx] = error_ekf[0,1]/(total_sample_number*N)
 	position_err[0, theta_ccr_idx] = math.sqrt(total_sample_number*N*error_ekf_2[0,1] - error_ekf[0,1]**2)/(total_sample_number*N)

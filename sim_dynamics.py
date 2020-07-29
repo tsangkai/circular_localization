@@ -93,6 +93,7 @@ for n in range(N):
 			
 		i = i+1
 
+	del agent_1
 
 ### visualization
 

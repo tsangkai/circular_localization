@@ -102,6 +102,9 @@ for T in range(num_T):
 
 	i = i+1
 
+
+del agent_1
+
 output_traj_file.close()
 
 
