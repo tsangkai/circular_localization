@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 import Agent
 
+
 ### import parameters
 
 with open('config.yaml') as config_file:
@@ -20,14 +21,23 @@ num_t = config['num_t']
 
 total_sample_number = (num_t+1) * num_T
 
+theta_ccr_arr = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0]
 
-# simulation
+
+### output data
+
+orientation_err = np.zeros((3, len(theta_ccr_arr)))
+position_err = np.zeros((3, len(theta_ccr_arr)))
+
+### simulation
 
 output_init_file = open("result/initial.txt", "w")
 
-theta_ccr_arr = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0]
+theta_ccr_idx = 0
     
 for theta_ccr in theta_ccr_arr:
+
+	print("initial concentration parameter = " + str(theta_ccr))
 
 	error_ekf = np.zeros([1, 2])
 	error_ekf_2 = np.zeros([1, 2])
@@ -44,7 +54,7 @@ for theta_ccr in theta_ccr_arr:
 		agent_1 = Agent.Agent(_theta=init_theta, _position=[0,0], _init_theta_given=False, _init_theta_cct=theta_ccr)
 
 		for T in range(num_T):
-			
+
 			for t in range(num_t):
 
 				agent_1.time_update()
@@ -79,7 +89,6 @@ for theta_ccr in theta_ccr_arr:
 
 			agent_1.bd_observation_update()
 
-
 			# EKF
 			[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
@@ -110,21 +119,55 @@ for theta_ccr in theta_ccr_arr:
 			error_lie_2[0,1] += loc_error ** 2
 
 
-	print('\ninitial concentration parameter = ' + str(theta_ccr))
-	print('EKF error')
-	print(error_ekf[0,1]/(total_sample_number*N))
-	print(math.sqrt(total_sample_number*N*error_ekf_2[0,1] - error_ekf[0,1]**2)/(total_sample_number*N))
-	print('hybrid error')
-	print(error_hybrid[0,1]/(total_sample_number*N))
-	print(math.sqrt(total_sample_number*N*error_hybrid_2[0,1] - error_hybrid[0,1]**2)/(total_sample_number*N))
-	print('Lie-EKF error')
-	print(error_lie[0,1]/(total_sample_number*N))
-	print(math.sqrt(total_sample_number*N*error_lie_2[0,1] - error_lie[0,1]**2)/(total_sample_number*N))
+	orientation_err[0, theta_ccr_idx] = error_ekf[0,1]/(total_sample_number*N)
+	position_err[0, theta_ccr_idx] = math.sqrt(total_sample_number*N*error_ekf_2[0,1] - error_ekf[0,1]**2)/(total_sample_number*N)
+
+	orientation_err[1, theta_ccr_idx] = error_hybrid[0,1]/(total_sample_number*N)
+	position_err[1, theta_ccr_idx] = math.sqrt(total_sample_number*N*error_hybrid_2[0,1] - error_hybrid[0,1]**2)/(total_sample_number*N)
+
+	orientation_err[2, theta_ccr_idx] = error_lie[0,1]/(total_sample_number*N)
+	position_err[2, theta_ccr_idx] = math.sqrt(total_sample_number*N*error_lie_2[0,1] - error_lie[0,1]**2)/(total_sample_number*N)
 
 	output_str = '{:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4}\n'.format(theta_ccr, error_ekf[0,0] / (total_sample_number*N), error_ekf[0,1] / (total_sample_number*N), error_hybrid[0,0] / (total_sample_number*N), error_hybrid[0,1] / (total_sample_number*N), error_lie[0,0] / (total_sample_number*N), error_lie[0,1] / (total_sample_number*N))
 	output_init_file.write(output_str)
 
+
+	theta_ccr_idx += 1
+
 output_init_file.close()
 
 
+
+### visualization
+
+plot_color = {
+	'EKF': config['color']['grenadine'],
+	'LG-EKF': config['color']['mustard'],
+	'hybrid': config['color']['navy'],
+	'circular': config['color']['spruce']
+}
+
+plt.figure(1)
+
+plt.subplot(211)
+
+plt.plot(theta_ccr_arr, orientation_err[0,:], color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
+plt.plot(theta_ccr_arr, orientation_err[1,:], color = plot_color['hybrid'], linewidth=1.6, label = 'hybrid')
+plt.plot(theta_ccr_arr, orientation_err[2,:], color = plot_color['LG-EKF'], linewidth=1.6, label = 'Lie-EKF')
+
+plt.ylabel('orientation err')
+plt.xscale('log') 
+
+plt.legend()
+
+plt.subplot(212)
+plt.plot(theta_ccr_arr, position_err[0,:], color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
+plt.plot(theta_ccr_arr, position_err[1,:], color = plot_color['hybrid'], linewidth=1.6, label = 'hybrid')
+plt.plot(theta_ccr_arr, position_err[2,:], color = plot_color['LG-EKF'], linewidth=1.6, label = 'Lie-EKF')
+
+plt.ylabel('position err')
+plt.xlabel('initial concentration parameter $\kappa_0$')
+plt.xscale('log') 
+
+plt.show()
 

@@ -85,8 +85,6 @@ for n in range(N):
 		error_hybrid[i,0] += or_error / total_sample_number
 		error_hybrid[i,1] += loc_error / total_sample_number
 
-
-
 		# lie
 		[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
 		[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
@@ -96,7 +94,7 @@ for n in range(N):
 		i = i+1
 
 
-# visualization
+### visualization
 
 plot_color = {
 	'EKF': config['color']['grenadine'],

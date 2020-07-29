@@ -32,7 +32,7 @@ data_lie = np.zeros([total_sample_number, 2])
 output_traj_file = open("result/trajectory.txt", "w")
 
 
-# simulation
+### simulation
 
 agent_1 = Agent.Agent()
 
@@ -105,7 +105,7 @@ for T in range(num_T):
 output_traj_file.close()
 
 
-# visualization
+### visualization
 
 plot_color = {
 	'EKF': config['color']['grenadine'],
