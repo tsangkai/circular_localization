@@ -26,18 +26,18 @@ total_sample_number = (num_t+1) * num_T
 
 time_arr = np.zeros([total_sample_number, 1])    
 
-groundtruth = np.zeros([total_sample_number, 2])
+# groundtruth = np.zeros([total_sample_number, 2])
 
-data_ekf = np.zeros([total_sample_number, 2])
+# data_ekf = np.zeros([total_sample_number, 2])
 error_ekf = np.zeros([total_sample_number, 2])
 
-data_hybrid = np.zeros([total_sample_number, 2])
+# data_hybrid = np.zeros([total_sample_number, 2])
 error_hybrid = np.zeros([total_sample_number, 2])
 
-data_circular = np.zeros([total_sample_number, 2])
+# data_circular = np.zeros([total_sample_number, 2])
 error_circular = np.zeros([total_sample_number, 2])
 
-data_lie = np.zeros([total_sample_number, 2])
+# data_lie = np.zeros([total_sample_number, 2])
 error_lie = np.zeros([total_sample_number, 2])
 
 
@@ -56,35 +56,22 @@ for n in range(N):
 		for t in range(num_t):
 
 			agent_1.time_update()
-				
 			time_arr[i] = agent_1.time 
-
-			groundtruth[i,0] = agent_1.position[0]
-			groundtruth[i,1] = agent_1.position[1]
 
 			# EKF
 			[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
-			data_ekf[i,0] = ekf_x
-			data_ekf[i,1] = ekf_y
-
 			[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
 			error_ekf[i,0] += or_error / total_sample_number
 			error_ekf[i,1] += loc_error / total_sample_number
 			
 			# hybrid
 			[hybrid_theta, hybrid_x, hybrid_y] = agent_1.hybrid_estimate.read_estimation()
-			data_hybrid[i,0] = hybrid_x
-			data_hybrid[i,1] = hybrid_y
-
 			[or_error, loc_error] = agent_1.estimation_error(hybrid_theta, hybrid_x, hybrid_y)
 			error_hybrid[i,0] += or_error / total_sample_number
 			error_hybrid[i,1] += loc_error / total_sample_number	
 
 			# lie
 			[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
-			data_lie[i,0] = lie_x
-			data_lie[i,1] = lie_y
-
 			[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
 			error_lie[i,0] += or_error / total_sample_number
 			error_lie[i,1] += loc_error / total_sample_number
@@ -93,26 +80,16 @@ for n in range(N):
 
 
 		agent_1.bd_observation_update()
-
 		time_arr[i] = agent_1.time 
-
-		groundtruth[i,0] = agent_1.position[0]
-		groundtruth[i,1] = agent_1.position[1]
 
 		# EKF
 		[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
-		data_ekf[i,0] = ekf_x
-		data_ekf[i,1] = ekf_y
-
 		[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
 		error_ekf[i,0] += or_error / total_sample_number
 		error_ekf[i,1] += loc_error / total_sample_number
 
 		# hybrid
 		[hybrid_theta, hybrid_x, hybrid_y] = agent_1.hybrid_estimate.read_estimation()
-		data_hybrid[i,0] = hybrid_x
-		data_hybrid[i,1] = hybrid_y
-
 		[or_error, loc_error] = agent_1.estimation_error(hybrid_theta, hybrid_x, hybrid_y)
 		error_hybrid[i,0] += or_error / total_sample_number
 		error_hybrid[i,1] += loc_error / total_sample_number
@@ -121,16 +98,11 @@ for n in range(N):
 
 		# lie
 		[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
-		data_lie[i,0] = lie_x
-		data_lie[i,1] = lie_y
-
 		[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
 		error_lie[i,0] += or_error / total_sample_number
 		error_lie[i,1] += loc_error / total_sample_number
 			
 		i = i+1
-
-
 
 
 # visualization
@@ -143,26 +115,6 @@ plot_color = {
 }
 
 plt.figure(1)
-
-plt.plot(groundtruth[:,0], groundtruth[:,1], 'k', linewidth=1.6, label = 'groundtruth')
-
-plt.plot(data_ekf[:,0], data_ekf[:,1], '--', color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
-plt.plot(data_hybrid[:,0], data_hybrid[:,1],'--',  color = plot_color['hybrid'], linewidth=1.6, label = 'hybrid')
-# plt.plot(data_circular[:,0], data_circular[:,1],'--',  color = plot_color['circular'], linewidth=1.6, label = 'circular')
-plt.plot(data_lie[:,0], data_lie[:,1],'--',  color = plot_color['LG-EKF'], linewidth=1.6, label = 'LG-EKF')
-
-plt.xlabel('x (m)')
-plt.ylabel('y (m)')
-
-# plt.xlim([-0.6, 0.6])
-# plt.ylim([-0.1, 1.1])
-
-plt.legend()
-# plt.savefig('result/trajectory.png')
-plt.show()
-
-
-plt.figure(2)
 
 plt.subplot(211)
 
