@@ -22,8 +22,6 @@ total_sample_number = (num_t+1) * num_T
 
 ### output data
 
-time_arr = np.zeros([total_sample_number, 1])    
-
 groundtruth = np.zeros([total_sample_number, 2])
 
 data_ekf = np.zeros([total_sample_number, 2])
@@ -43,8 +41,6 @@ for T in range(num_T):
 	for t in range(num_t):
 
 		agent_1.time_update()
-			
-		time_arr[i] = agent_1.time 
 
 		groundtruth[i,0] = agent_1.position[0]
 		groundtruth[i,1] = agent_1.position[1]
@@ -77,8 +73,6 @@ for T in range(num_T):
 
 	agent_1.bd_observation_update()
 	agent_1.direct_observation_update() # for circular representation
-
-	time_arr[i] = agent_1.time 
 
 	groundtruth[i,0] = agent_1.position[0]
 	groundtruth[i,1] = agent_1.position[1]
