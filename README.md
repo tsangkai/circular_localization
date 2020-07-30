@@ -9,4 +9,4 @@
 
 
 ### Initial Orientation
-![initial.png][result/initial.png]
+![][result/initial.png]
