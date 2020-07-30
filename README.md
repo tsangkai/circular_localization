@@ -3,10 +3,10 @@
 
 
 ### Trajectory
-
+![](result/trajectory.png)
 
 ### Dynamics
-
+![](result/dynamics.png)
 
 ### Initial Orientation
-![][result/initial.png]
+![](result/initial.png)
