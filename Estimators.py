@@ -35,7 +35,7 @@ class GaussianEstimate:
 
 
 class CircularEstimate:
-	def __init__(self, _phase=0, _concentration=0):
+	def __init__(self, _phase=0, _concentration=100):
 		self.phase = _phase
 		self.concentration = _concentration
 
@@ -192,13 +192,12 @@ class GridModule:
 		self.estimate = CircularEstimate(_phase, _concentration)
 
 	def time_update(self, input_distance, input_distance_std):
-		_phase_cct = math.pow(self.scale/ 2*math.pi*input_distance_std, 2)
+		_phase_cct = math.pow(self.scale/(2*math.pi*input_distance_std), 2)
 		self.estimate.time_update(2*math.pi*input_distance/self.scale, _phase_cct)
 
 	def observation_update(self, input_distance, input_distance_std):
-		# _phase_cct = min(math.pow(self.scale / 2*math.pi*input_distance_std, 2), 600)
-		_phase_cct = math.pow(self.scale / 2*math.pi*input_distance_std, 2)
-
+		#_phase_cct = min(math.pow(self.scale / 2*math.pi*input_distance_std, 2), 600)
+		_phase_cct = math.pow(self.scale /(2*math.pi*input_distance_std), 2)
 		self.estimate.observation_update(2*math.pi*input_distance/self.scale, _phase_cct)
 
 
@@ -207,21 +206,19 @@ class CircularSpatialState:
 	def __init__(self, _phase=0, _concentration=0.0001):
 		# estimate
 
-
 		self.theta_est = CircularEstimate(_phase, _concentration)
 		self.module_x_array = []
 		self.module_y_array = []
 
-		self.num_of_module = 4
+		self.num_of_module = 4  #m = 4
+		_lambda = 1.5
 		for i in range(self.num_of_module):   
-			self.module_x_array.append(GridModule(0.5*math.pow(1.5,i), 0, 650))
-			self.module_y_array.append(GridModule(0.5*math.pow(1.5,i), 0, 650))
+			self.module_x_array.append(GridModule(0.5*math.pow(_lambda,i), 0, 10000))
+			self.module_y_array.append(GridModule(0.5*math.pow(_lambda,i), 0, 10000))
 
 
-		self._x = 0
-		self._y = 0
-
-
+		# self._x = 0
+		# self._y = 0
 
 
 	def time_update(self, input_w, input_w_std, input_v, input_v_std, dt):
@@ -239,8 +236,7 @@ class CircularSpatialState:
 		for i in range(self.num_of_module):   # 5 modules, the scale grow from 25 cm with spatial ratio 1.5
 			self.module_x_array[i].time_update(total_distance*math.cos(self.theta_est.phase), total_distance_std)
 			self.module_y_array[i].time_update(total_distance*math.sin(self.theta_est.phase), total_distance_std)
-
-
+	
 
 
 	def direct_observation_update(self, obs_theta, obs_theta_cct, obs_x, obs_y, obs_std):
@@ -252,26 +248,25 @@ class CircularSpatialState:
 
 
 	def bd_observation_update(self, bearing, bearing_cct, distance, distance_std):
-		distance_cov = distance_std**2
-
 		_position = self.cartesian_readout()
-
-		# orientation update
-		position_cct = self.module_x_array[-1].estimate.concentration * math.pow(2*math.pi/self.module_x_array[-1].scale ,2)
 		dx = landmark[0]-_position[0]
 		dy = landmark[1]-_position[1]
-
-
+		distance_cov = distance_std**2
 		est_distance = math.sqrt(dx**2 + dy**2)
 		est_phase = math.atan2(dy, dx) - bearing
-		_cct = mean_of_cct(bearing_cct, est_distance*distance*position_cct*0.5)
+
+
+		# orientation observation update
+		position_cct = self.module_x_array[-1].estimate.concentration * math.pow(2*math.pi/self.module_x_array[-1].scale ,2)
+		_cct =  mean_of_cct(est_distance*distance*(position_cct)*0.5, bearing_cct)
 		self.theta_est.force_observation_update(est_phase, _cct)
 
-
+		
+	
 		# position update
 		_equ_x = landmark[0] - distance * func_A(bearing_cct) * func_A(self.theta_est.concentration) * math.cos(self.theta_est.phase + bearing)
 		_equ_y = landmark[1] - distance * func_A(bearing_cct) * func_A(self.theta_est.concentration) * math.sin(self.theta_est.phase + bearing)
-		_equ_std = math.sqrt(distance_cov+math.pow(distance, 2))
+		_equ_std = math.sqrt(distance_cov+ distance ** 2)
 
 
 		for i in range(self.num_of_module):   # 5 modules, the scale grow from 25 cm with spatial ratio 1.5
@@ -281,16 +276,16 @@ class CircularSpatialState:
 
 
 
-	def _grid_to_catesian(self, module_array, max_value=1.2, min_value=-1.2):
+	def _grid_to_catesian(self, module_array, max_value=2, min_value=-1): #Changes from -1.2-1.2 to -10-10
 		_num = 801
 
 		_space = np.linspace(min_value, max_value, num=_num)
-		_likelihood = np.zeros_like(_space)
+		_likelihood = np.zeros_like(_space) 
 
 		for i in range(_num):
 			_point = _space[i]
 			for module in module_array:
-				_likelihood[i] += module.estimate.concentration * math.cos(2.0*math.pi*_point/module.scale - module.estimate.phase)
+				_likelihood[i] += module.estimate.concentration * (math.cos(2.0*math.pi*_point/module.scale - module.estimate.phase))
 
 		return _space[np.argmax(_likelihood)]
 
@@ -305,7 +300,7 @@ class CircularSpatialState:
 
 
 
-########
+##########################################
 
 
 
@@ -366,11 +361,12 @@ class LieGroupSpatialState:
 ########
 
 def func_A(x):
-	return np.divide(special.iv(1, x), special.iv(0, x))
+	modified_result_of_division = np.divide(special.i1e(x),special.i0e(x))
+	return modified_result_of_division
 
 def func_A_Deriv(kappa): #Same as f' referenced in Song
-	aTemp =  func_A(kappa)
-	return (1-aTemp*(aTemp+1/kappa))
+    aTemp =  func_A(kappa)
+    return (1-aTemp*(aTemp+1/kappa))
 
 def kEst(outputVal): #determine the estimation step thru slope (Originated with Banerjee, used by Sra, Song)
 	return (outputVal*(2-np.power(outputVal, 2))/(1-np.power(outputVal, 2)))

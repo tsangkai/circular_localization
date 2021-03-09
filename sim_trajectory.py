@@ -16,14 +16,14 @@ with open('config.yaml') as config_file:
 
 num_T = config['num_T'] 
 num_t = config['num_t'] 
-
 total_sample_number = (num_t+1) * num_T
+
+np.random.seed(1)
 
 
 ### output data
 
 groundtruth = np.zeros([total_sample_number, 2])
-
 data_ekf = np.zeros([total_sample_number, 2])
 data_hybrid = np.zeros([total_sample_number, 2])
 data_circular = np.zeros([total_sample_number, 2])
@@ -72,7 +72,7 @@ for T in range(num_T):
 
 
 	agent_1.bd_observation_update()
-	agent_1.direct_observation_update() # for circular representation
+	# agent_1.direct_observation_update() # for circular representation
 
 	groundtruth[i,0] = agent_1.position[0]
 	groundtruth[i,1] = agent_1.position[1]
@@ -82,7 +82,7 @@ for T in range(num_T):
 	data_ekf[i,0] = ekf_x
 	data_ekf[i,1] = ekf_y
 
-	# hybrid
+	# # hybrid
 	[hybrid_theta, hybrid_x, hybrid_y] = agent_1.hybrid_estimate.read_estimation()
 	data_hybrid[i,0] = hybrid_x
 	data_hybrid[i,1] = hybrid_y
@@ -126,12 +126,14 @@ plt.plot(data_hybrid[:,0], data_hybrid[:,1],'--',  color = plot_color['hybrid'],
 plt.plot(data_circular[:,0], data_circular[:,1],'--',  color = plot_color['circular'], linewidth=1.6, label = 'circular')
 plt.plot(data_lie[:,0], data_lie[:,1],'--',  color = plot_color['LG-EKF'], linewidth=1.6, label = 'LG-EKF')
 
+
 plt.xlabel('x (m)')
 plt.ylabel('y (m)')
 
 plt.legend()
 plt.savefig('result/trajectory.png')
 plt.show()
+# plt.pause(10)
 
 
 

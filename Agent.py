@@ -29,9 +29,10 @@ class Agent:
 			initial_cov = _cov=np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]])
 
 			self.EKF_estimate = Estimators.GaussianSpatialState(_mean=initial_state, _cov=initial_cov)
-			self.hybrid_estimate = Estimators.HybridSpatialState(_phase=_theta, _concentration=1.0/0.01, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
+			self.lie_estimate = Estimators.LieGroupSpatialState(_mean=initial_state, _cov=initial_cov) 
+			self.hybrid_estimate = Estimators.HybridSpatialState(_phase=_theta, _concentration=1.0/0.01, _x=_position[0], _x_std=0.01, _y=_position[1], _y_std=0.01)
 			self.circular_estimate = Estimators.CircularSpatialState(_phase=_theta, _concentration=1.0/0.01)
-			self.lie_estimate = Estimators.LieGroupSpatialState(_mean=initial_state, _cov=initial_cov)      
+			     
 
 		else:                                    # unkown initial case (dynamic sim)
 			theta_cov = 1.0 / _init_theta_cct 
@@ -40,6 +41,7 @@ class Agent:
 
 			self.EKF_estimate = Estimators.GaussianSpatialState(initial_state, initial_cov)
 			self.hybrid_estimate = Estimators.HybridSpatialState(_phase=0, _concentration=_init_theta_cct, _x=0, _x_std=0.01, _y=0, _y_std=0.01)
+			self.circular_estimate = Estimators.CircularSpatialState(_phase=0, _concentration=_init_theta_cct)
 			self.lie_estimate = Estimators.LieGroupSpatialState(initial_state, initial_cov)     
 
 
@@ -70,7 +72,7 @@ class Agent:
 		# estimate update
 		self.EKF_estimate.time_update(w, w_std, v, v_std, dt)
 		self.hybrid_estimate.time_update(w, w_std, v, v_std, dt)
-		# self.circular_estimate.time_update(w, w_std, v, v_std, dt)
+		self.circular_estimate.time_update(w, w_std, v, v_std, dt)
 		self.lie_estimate.time_update(w, w_std, v, v_std, dt)
 
 
@@ -97,7 +99,6 @@ class Agent:
 		obs_std = config['d_std'] # Parameter.d_std
 		obs_x = self.position[0] + np.random.normal(0, obs_std)
 		obs_y = self.position[1] + np.random.normal(0, obs_std)
-
 		self.circular_estimate.direct_observation_update(obs_theta, obs_theta_cct, obs_x, obs_y, obs_std)
 
 
@@ -120,6 +121,7 @@ class Agent:
 		# notice that some input is phi_std, and some is phi_cct
 		self.EKF_estimate.bd_observation_update(observ_bearing, phi_std, observ_distance, d_std)
 		self.hybrid_estimate.bd_observation_update(observ_bearing, phi_cct, observ_distance, d_std)
+		self.circular_estimate.bd_observation_update(observ_bearing, phi_cct, observ_distance, d_std)
 		self.lie_estimate.bd_observation_update(observ_bearing, phi_std, observ_distance, d_std)
 
 

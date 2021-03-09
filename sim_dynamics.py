@@ -34,8 +34,6 @@ error_lie = np.zeros([total_sample_number, 2])
 
 
 # simulation
-
-
 for n in range(N):
 	print(n)
 
@@ -62,10 +60,16 @@ for n in range(N):
 			error_hybrid[i,1] += loc_error / total_sample_number	
 
 			# lie
-			[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
-			[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
-			error_lie[i,0] += or_error / total_sample_number
-			error_lie[i,1] += loc_error / total_sample_number
+			# [lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
+			# [or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
+			# error_lie[i,0] += or_error / total_sample_number
+			# error_lie[i,1] += loc_error / total_sample_number
+			#circular
+
+			[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
+			[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
+			error_circular[i,0] += or_error / total_sample_number
+			error_circular[i,1] += loc_error / total_sample_number
 
 			i = i+1
 
@@ -85,11 +89,17 @@ for n in range(N):
 		error_hybrid[i,0] += or_error / total_sample_number
 		error_hybrid[i,1] += loc_error / total_sample_number
 
-		# lie
-		[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
-		[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
-		error_lie[i,0] += or_error / total_sample_number
-		error_lie[i,1] += loc_error / total_sample_number
+		#circular
+		[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
+		[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
+		error_circular[i,0] += or_error / total_sample_number
+		error_circular[i,1] += loc_error / total_sample_number
+
+		# # lie
+		# [lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
+		# [or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
+		# error_lie[i,0] += or_error / total_sample_number
+		# error_lie[i,1] += loc_error / total_sample_number
 			
 		i = i+1
 
@@ -110,7 +120,8 @@ plt.subplot(211)
 
 plt.plot(time_arr, error_ekf[:,0], color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
 plt.plot(time_arr, error_hybrid[:,0], color = plot_color['hybrid'], linewidth=1.6, label = 'hybrid')
-plt.plot(time_arr, error_lie[:,0], color = plot_color['LG-EKF'], linewidth=1.6, label = 'Lie-EKF')
+plt.plot(time_arr, error_circular[:,0], color = plot_color['circular'], linewidth=1.6, label = 'circular')
+# plt.plot(time_arr, error_lie[:,0], color = plot_color['LG-EKF'], linewidth=1.6, label = 'Lie-EKF')
 
 plt.ylabel('orientation err')
 plt.ylim([0, 0.012])
@@ -120,7 +131,9 @@ plt.legend()
 plt.subplot(212)
 plt.plot(time_arr, error_ekf[:,1], color = plot_color['EKF'], linewidth=1.6)
 plt.plot(time_arr, error_hybrid[:,1], color = plot_color['hybrid'], linewidth=1.6)
-plt.plot(time_arr, error_lie[:,1], color = plot_color['LG-EKF'], linewidth=1.6)
+plt.plot(time_arr, error_circular[:,1], color = plot_color['circular'], linewidth=1.6)
+
+# plt.plot(time_arr, error_lie[:,1], color = plot_color['LG-EKF'], linewidth=1.6)
 
 plt.ylabel('position err')
 

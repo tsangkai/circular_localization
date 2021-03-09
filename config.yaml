@@ -1,13 +1,13 @@
 # the simulation parameters
 
-num_of_trial: 10 
+num_of_trial: 10
 
 # Landmark
-landmark_position: [20.0, 20.0]
+landmark_position: [20, 20]
 
 # Time
 dt: 0.1
-num_T: 16     # number of observation update
+num_T: 16    # number of observation update
 num_t: 10     # number of time updates for each observation update
 
 
@@ -24,8 +24,8 @@ v_std: 0.03
 
 ##### Observation update noise parameter
 phi_cct: 400.0
-# d_std: 0.01   # sim_trajectory.py
-d_std: 0.7   
+d_std: 0.7   # sim_trajectory.py
+# d_std: 0.7   
 
 
 ##### Visualization
