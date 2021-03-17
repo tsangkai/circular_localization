@@ -150,6 +150,7 @@ def plot_dynamics():
 	ax6.plot(dynamics[:,0], dynamics[:,5], color = plot_color['LG-EKF'], linewidth=1.6, label = 'LG-EKF')
 	ax6.plot(dynamics[:,0], dynamics[:,7], color = plot_color['circular'], linewidth=1.6, label = 'Circular')
 	ax6.set(ylabel='orientation err')
+	ax7.set(xlabel='Time [s]]')
 	# plt.ylim([0, 0.012])
 	ax6.legend(loc =1)
 
@@ -158,6 +159,7 @@ def plot_dynamics():
 	ax7.plot(dynamics[:,0], dynamics[:,6], color = plot_color['LG-EKF'], linewidth=1.6, label = 'LG-EKF')
 	ax7.plot(dynamics[:,0], dynamics[:,8], color = plot_color['circular'], linewidth=1.6, label = 'Circular')
 	ax7.set(ylabel='position err')
+	ax7.set(xlabel='Time [s]')
 	ax7.legend(loc =1)
 	# plt.ylim([0, 0.3])
 	plt.show()
