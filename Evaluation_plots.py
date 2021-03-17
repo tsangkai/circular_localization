@@ -65,13 +65,36 @@ def plot_trajectory():
 
 	ax.set(xlabel='x [m]')
 	ax.set(ylabel='y [m]')
-	ax.legend(loc = 1)
+	ax.legend(loc = 'upper right', ncol=2)
 	ax.set_xlim(-0.5, 0.8)
 	ax.set_ylim(-0.1, 1.2)
 
 	fig.savefig('result/trajectory.pdf')
 	plt.show()
 
+
+def plot_dynamics():
+	dynamics = np.loadtxt('result/dynamics.txt')
+	fig, (ax1, ax2) = plt.subplots(2)
+	fig.set_size_inches(fig_width, fig_height)
+    
+	ax1.plot(dynamics[:,0], dynamics[:,1], color = plot_color['EKF'], linewidth=line_width, label = 'EKF')
+	ax1.plot(dynamics[:,0], dynamics[:,5], color = plot_color['LG-EKF'], linewidth=line_width, label = 'LG-EKF')
+	ax1.plot(dynamics[:,0], dynamics[:,3], color = plot_color['hybrid'], linewidth=line_width, label = 'hybrid')
+	ax1.plot(dynamics[:,0], dynamics[:,7], color = plot_color['circular'], linewidth=line_width, label = 'circular')
+	ax1.set(ylabel='orientation error')
+	ax1.set_ylim(-0.01, 0.15)
+	ax1.legend(loc ='upper right')
+
+	ax2.plot(dynamics[:,0], dynamics[:,2], color = plot_color['EKF'], linewidth=line_width, label = 'EKF')
+	ax2.plot(dynamics[:,0], dynamics[:,6], color = plot_color['LG-EKF'], linewidth=line_width, label = 'LG-EKF')
+	ax2.plot(dynamics[:,0], dynamics[:,4], color = plot_color['hybrid'], linewidth=line_width, label = 'hybrid')
+	ax2.plot(dynamics[:,0], dynamics[:,8], color = plot_color['circular'], linewidth=line_width, label = 'circular')
+	ax2.set(ylabel='position error [m]')
+	ax2.set(xlabel='time [s]')
+
+	fig.savefig('result/dynamics.pdf')
+	plt.show()
 
 
 
@@ -103,13 +126,13 @@ def plot_initial(with_std=False):
 
 	ax1.plot(theta_ccr_arr, mean[:,0], '-x', color = plot_color['EKF'], linewidth=line_width, label = 'EKF')
 	ax1.plot(theta_ccr_arr, mean[:,4], '-x', color = plot_color['LG-EKF'], linewidth=line_width, label = 'LG-EKF')
-	ax1.plot(theta_ccr_arr, mean[:,2], '-x', color = plot_color['hybrid'], linewidth=line_width, label = 'Hybrid')
-	ax1.plot(theta_ccr_arr, mean[:,6], '-x', color = plot_color['circular'], linewidth=line_width, label = 'Circular')
+	ax1.plot(theta_ccr_arr, mean[:,2], '-x', color = plot_color['hybrid'], linewidth=line_width, label = 'hybrid')
+	ax1.plot(theta_ccr_arr, mean[:,6], '-x', color = plot_color['circular'], linewidth=line_width, label = 'circular')
     
     #labeling
 	ax1.set_xscale('log') 
 	ax1.set(ylabel='orientation error')
-	ax1.legend(loc = 1)
+	ax1.legend(loc = 'upper right')
 
 	if with_std:
 		ax2.fill_between(theta_ccr_arr, mean[:,1]-0.5*standard_div[:,1], mean[:,1]+0.5*standard_div[:,1], color = plot_color['EKF'], alpha = alpha_value,
@@ -123,8 +146,8 @@ def plot_initial(with_std=False):
 
 	ax2.plot(theta_ccr_arr, mean[:,1], '-x', color = plot_color['EKF'], linewidth=line_width, label = 'EKF') #ekf_pos_error
 	ax2.plot(theta_ccr_arr, mean[:,5], '-x', color = plot_color['LG-EKF'], linewidth=line_width, label = 'LG-EKF') #ekf_pos_error
-	ax2.plot(theta_ccr_arr, mean[:,3], '-x', color = plot_color['hybrid'], linewidth=line_width, label = 'Hybrid') #ekf_pos_error
-	ax2.plot(theta_ccr_arr, mean[:,7], '-x', color = plot_color['circular'], linewidth=line_width, label = 'Circular') #ekf_pos_error
+	ax2.plot(theta_ccr_arr, mean[:,3], '-x', color = plot_color['hybrid'], linewidth=line_width, label = 'hybrid') #ekf_pos_error
+	ax2.plot(theta_ccr_arr, mean[:,7], '-x', color = plot_color['circular'], linewidth=line_width, label = 'circular') #ekf_pos_error
 	
 	#labeling
 	ax2.set_xscale('log')
@@ -140,33 +163,10 @@ def plot_initial(with_std=False):
 
 
 
-def plot_dynamics():
-	dynamics = np.loadtxt('result/dynamics.txt')
-	fig4, (ax6, ax7) = plt.subplots(2)
-	fig4.set_size_inches(fig_width, fig_height)
-    
-	ax6.plot(dynamics[:,0], dynamics[:,1], color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
-	ax6.plot(dynamics[:,0], dynamics[:,3], color = plot_color['hybrid'], linewidth=1.6, label = 'Hybrid')
-	ax6.plot(dynamics[:,0], dynamics[:,5], color = plot_color['LG-EKF'], linewidth=1.6, label = 'LG-EKF')
-	ax6.plot(dynamics[:,0], dynamics[:,7], color = plot_color['circular'], linewidth=1.6, label = 'Circular')
-	ax6.set(ylabel='orientation err')
-	ax7.set(xlabel='Time [s]]')
-	# plt.ylim([0, 0.012])
-	ax6.legend(loc =1)
 
-	ax7.plot(dynamics[:,0], dynamics[:,2], color = plot_color['EKF'], linewidth=1.6, label = 'EKF')
-	ax7.plot(dynamics[:,0], dynamics[:,4], color = plot_color['hybrid'], linewidth=1.6, label = 'Hybrid')
-	ax7.plot(dynamics[:,0], dynamics[:,6], color = plot_color['LG-EKF'], linewidth=1.6, label = 'LG-EKF')
-	ax7.plot(dynamics[:,0], dynamics[:,8], color = plot_color['circular'], linewidth=1.6, label = 'Circular')
-	ax7.set(ylabel='position err')
-	ax7.set(xlabel='Time [s]')
-	ax7.legend(loc =1)
-	# plt.ylim([0, 0.3])
-	plt.show()
 
-plot_dynamics()
 plot_trajectory()
-
+plot_dynamics()
 plot_initial(True)
 
 
