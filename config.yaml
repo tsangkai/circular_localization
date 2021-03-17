@@ -7,7 +7,7 @@ landmark_position: [20, 20]
 
 # Time
 dt: 0.1
-num_T: 16    # number of observation update
+num_T: 16   # number of observation update
 num_t: 10     # number of time updates for each observation update
 
 
@@ -15,7 +15,7 @@ num_t: 10     # number of time updates for each observation update
 
 # angular velocity
 w: 0.8        # rad/s
-w_std: 0.4
+w_std: 0.6
 
 # translational velocity
 v: 0.3        # m/s

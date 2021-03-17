@@ -32,16 +32,21 @@ position_err = np.zeros((4, len(theta_ccr_arr)))
 
 ### simulation
 
-output_init_file = open("result/initial.txt", "w")
+output_init_file = open("result/initial.csv", "w")
 
 theta_ccr_idx = 0
-    
+
+err_array = np.zeros((len(theta_ccr_arr),8, total_sample_number*N))    
 for theta_ccr in theta_ccr_arr:
 
 	print("initial concentration parameter = " + str(theta_ccr))
 
+	
+
+
 	error_ekf = np.zeros([1, 2])
 	error_ekf_2 = np.zeros([1, 2])
+
 
 	error_hybrid = np.zeros([1, 2])
 	error_hybrid_2 = np.zeros([1, 2])
@@ -51,6 +56,8 @@ for theta_ccr in theta_ccr_arr:
 
 	error_circular = np.zeros([1, 2])
 	error_circular_2 = np.zeros([1, 2])
+
+	i = 0
 
 	for n in range(N):
 
@@ -67,14 +74,21 @@ for theta_ccr in theta_ccr_arr:
 				[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
 				[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
 
+				err_array[theta_ccr_idx, 0, i] = or_error
+				err_array[theta_ccr_idx, 1, i]= loc_error
+
 				error_ekf[0,0] += or_error
 				error_ekf[0,1] += loc_error 
 				error_ekf_2[0,0] += or_error ** 2
-				error_ekf_2[0,1] += loc_error ** 2	
+				error_ekf_2[0,1] += loc_error ** 2
+
 
 				# hybrid
 				[hybrid_theta, hybrid_x, hybrid_y] = agent_1.hybrid_estimate.read_estimation()
 				[or_error, loc_error] = agent_1.estimation_error(hybrid_theta, hybrid_x, hybrid_y)
+
+				err_array[theta_ccr_idx, 2, i] = or_error
+				err_array[theta_ccr_idx, 3, i]= loc_error
 
 				error_hybrid[0,0] += or_error 
 				error_hybrid[0,1] += loc_error
@@ -85,6 +99,9 @@ for theta_ccr in theta_ccr_arr:
 				[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
 				[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
 
+				err_array[theta_ccr_idx, 4, i] = or_error
+				err_array[theta_ccr_idx, 5, i]= loc_error
+
 				error_lie[0,0] += or_error 
 				error_lie[0,1] += loc_error
 				error_lie_2[0,0] += or_error ** 2
@@ -94,10 +111,15 @@ for theta_ccr in theta_ccr_arr:
 				[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
 				[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
 
+				err_array[theta_ccr_idx, 6, i] = or_error
+				err_array[theta_ccr_idx, 7, i]= loc_error
+
 				error_circular[0,0] += or_error 
 				error_circular[0,1] += loc_error
 				error_circular_2[0,0] += or_error ** 2
 				error_circular_2[0,1] += loc_error ** 2
+
+				i = i+1
 
 
 			agent_1.bd_observation_update()
@@ -106,6 +128,9 @@ for theta_ccr in theta_ccr_arr:
 			# EKF
 			[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
+
+			err_array[theta_ccr_idx, 0, i] = or_error
+			err_array[theta_ccr_idx, 1, i]= loc_error
 
 			error_ekf[0,0] += or_error
 			error_ekf[0,1] += loc_error 
@@ -117,6 +142,9 @@ for theta_ccr in theta_ccr_arr:
 			[hybrid_theta, hybrid_x, hybrid_y] = agent_1.hybrid_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(hybrid_theta, hybrid_x, hybrid_y)
 
+			err_array[theta_ccr_idx, 2, i] = or_error
+			err_array[theta_ccr_idx, 3, i]= loc_error
+
 			error_hybrid[0,0] += or_error 
 			error_hybrid[0,1] += loc_error
 			error_hybrid_2[0,0] += or_error ** 2
@@ -127,6 +155,9 @@ for theta_ccr in theta_ccr_arr:
 			[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
 
+			err_array[theta_ccr_idx, 4, i] = or_error
+			err_array[theta_ccr_idx, 5, i]= loc_error
+
 			error_lie[0,0] += or_error 
 			error_lie[0,1] += loc_error
 			error_lie_2[0,0] += or_error ** 2
@@ -136,13 +167,21 @@ for theta_ccr in theta_ccr_arr:
 			#circular
 			[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
+
+			err_array[theta_ccr_idx, 6, i] = or_error
+			err_array[theta_ccr_idx, 7, i]= loc_error
 			
 			error_circular[0,0] += or_error 
 			error_circular[0,1] += loc_error
 			error_circular_2[0,0] += or_error ** 2
 			error_circular_2[0,1] += loc_error ** 2
 
+			i = i+1
+
 		del agent_1
+
+	obtained_error_data = err_array.reshape(len(theta_ccr_arr), 8 * total_sample_number*N) 
+	np.savetxt('result/test_error_data.txt', obtained_error_data)
 
 	orientation_err[0, theta_ccr_idx] = error_ekf[0,0]/(total_sample_number*N)
 	position_err[0, theta_ccr_idx] = math.sqrt(total_sample_number*N*error_ekf_2[0,1] - error_ekf[0,1]**2)/(total_sample_number*N)
@@ -156,7 +195,11 @@ for theta_ccr in theta_ccr_arr:
 	orientation_err[3, theta_ccr_idx] = error_circular[0,0]/(total_sample_number*N)
 	position_err[3, theta_ccr_idx] = math.sqrt(total_sample_number*N*error_circular_2[0,1] - error_circular[0,1]**2)/(total_sample_number*N)
 
-	output_str = '{:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4}\n'.format(theta_ccr, error_ekf[0,0] / (total_sample_number*N), error_ekf[0,1] / (total_sample_number*N), error_hybrid[0,0] / (total_sample_number*N), error_hybrid[0,1] / (total_sample_number*N), error_lie[0,0] / (total_sample_number*N), error_lie[0,1] / (total_sample_number*N))
+	output_str = '{:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4} \n'.format(theta_ccr, error_ekf[0,0] / (total_sample_number*N), error_ekf[0,1] / (total_sample_number*N), \
+																									error_hybrid[0,0] / (total_sample_number*N), \
+																									error_hybrid[0,1] / (total_sample_number*N), error_lie[0,0] / (total_sample_number*N),\
+		 																							error_lie[0,1] / (total_sample_number*N),error_circular[0,0] / (total_sample_number*N), \
+		 																							error_circular[0,1] / (total_sample_number*N))
 	output_init_file.write(output_str)
 
 

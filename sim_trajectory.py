@@ -29,7 +29,9 @@ data_hybrid = np.zeros([total_sample_number, 2])
 data_circular = np.zeros([total_sample_number, 2])
 data_lie = np.zeros([total_sample_number, 2])
 
-output_traj_file = open("result/trajectory.txt", "w")
+output_traj_file = open("result/trajectory.csv", "w")
+# result_str = 'time, p_x, p_y, ekf_x, ekf_y, hybrid_x, hybrid_y, circular_x, circular_y, lie_x, lie_y\n'
+# output_traj_file.write(result_str)
 
 
 ### simulation
@@ -65,7 +67,7 @@ for T in range(num_T):
 		data_lie[i,0] = lie_x
 		data_lie[i,1] = lie_y
 
-		result_str = '{:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4}\n'.format(agent_1.time, agent_1.position[0], agent_1.position[1], ekf_x, ekf_y, hybrid_x, hybrid_y, circular_x, circular_y, lie_x, lie_y)
+		result_str = '{:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}\n'.format(agent_1.time, agent_1.position[0], agent_1.position[1], ekf_x, ekf_y, hybrid_x, hybrid_y, circular_x, circular_y, lie_x, lie_y)
 		output_traj_file.write(result_str)
 
 		i = i+1
@@ -97,7 +99,7 @@ for T in range(num_T):
 	data_lie[i,0] = lie_x
 	data_lie[i,1] = lie_y
 
-	result_str = '{:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4} {:2.4}\n'.format(agent_1.time, agent_1.position[0], agent_1.position[1], ekf_x, ekf_y, hybrid_x, hybrid_y, circular_x, circular_y, lie_x, lie_y)
+	result_str = '{:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}\n'.format(agent_1.time, agent_1.position[0], agent_1.position[1], ekf_x, ekf_y, hybrid_x, hybrid_y, circular_x, circular_y, lie_x, lie_y)
 	output_traj_file.write(result_str)
 
 	i = i+1
