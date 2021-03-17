@@ -1,6 +1,6 @@
 # the simulation parameters
 
-num_of_trial: 10
+num_of_trial: 100
 
 # Landmark
 landmark_position: [20, 20]
