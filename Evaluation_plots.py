@@ -194,9 +194,9 @@ def plot_last_of_initals():
 	plt.show()
 
 
-# plot_trajectory()
-# plot_dynamics()
-# plot_initial(False)
+plot_trajectory()
+plot_dynamics()
+plot_initial(False)
 plot_last_of_initals()
 
 
