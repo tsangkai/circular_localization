@@ -90,10 +90,9 @@ def plot_dynamics():
 	ax2.plot(dynamics[:,0], dynamics[:,6], color = plot_color['LG-EKF'], linewidth=line_width, label = 'LG-EKF')
 	ax2.plot(dynamics[:,0], dynamics[:,4], color = plot_color['hybrid'], linewidth=line_width, label = 'hybrid')
 	ax2.plot(dynamics[:,0], dynamics[:,8], color = plot_color['circular'], linewidth=line_width, label = 'circular')
-	ax2.set_ylim(top=1.1)
+	ax2.set_ylim(top=1.7)
 	ax2.set(ylabel='position error [m]')
 	ax2.set(xlabel='time [s]')
-
 	fig.savefig('result/dynamics.pdf')
 	plt.show()
 
