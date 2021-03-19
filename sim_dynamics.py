@@ -50,26 +50,26 @@ for n in range(N):
 			# EKF
 			[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
-			error_ekf[i,0] += or_error / total_sample_number
-			error_ekf[i,1] += loc_error / total_sample_number
+			error_ekf[i,0] += or_error / N
+			error_ekf[i,1] += loc_error / N
 			
 			# hybrid
 			[hybrid_theta, hybrid_x, hybrid_y] = agent_1.hybrid_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(hybrid_theta, hybrid_x, hybrid_y)
-			error_hybrid[i,0] += or_error / total_sample_number
-			error_hybrid[i,1] += loc_error / total_sample_number	
+			error_hybrid[i,0] += or_error / N
+			error_hybrid[i,1] += loc_error / N	
 
 			#lie
 			[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
-			error_lie[i,0] += or_error / total_sample_number
-			error_lie[i,1] += loc_error / total_sample_number
+			error_lie[i,0] += or_error / N
+			error_lie[i,1] += loc_error / N
 			
 			#circular
 			[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
 			[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
-			error_circular[i,0] += or_error / total_sample_number
-			error_circular[i,1] += loc_error / total_sample_number
+			error_circular[i,0] += or_error / N
+			error_circular[i,1] += loc_error / N
 			
 			#Write to the file
 			# output_str = '{}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}\n'.format(n, time_arr[i].item(), error_ekf[i,0], error_ekf[i,1],\
@@ -87,26 +87,26 @@ for n in range(N):
 		# EKF
 		[ekf_theta, ekf_x, ekf_y] = agent_1.EKF_estimate.read_estimation()
 		[or_error, loc_error] = agent_1.estimation_error(ekf_theta, ekf_x, ekf_y)
-		error_ekf[i,0] += or_error / total_sample_number
-		error_ekf[i,1] += loc_error / total_sample_number
+		error_ekf[i,0] += or_error / N
+		error_ekf[i,1] += loc_error / N
 
 		# hybrid
 		[hybrid_theta, hybrid_x, hybrid_y] = agent_1.hybrid_estimate.read_estimation()
 		[or_error, loc_error] = agent_1.estimation_error(hybrid_theta, hybrid_x, hybrid_y)
-		error_hybrid[i,0] += or_error / total_sample_number
-		error_hybrid[i,1] += loc_error / total_sample_number
+		error_hybrid[i,0] += or_error / N
+		error_hybrid[i,1] += loc_error / N
 
 		# lie
 		[lie_theta, lie_x, lie_y] = agent_1.lie_estimate.read_estimation()
 		[or_error, loc_error] = agent_1.estimation_error(lie_theta, lie_x, lie_y)
-		error_lie[i,0] += or_error / total_sample_number
-		error_lie[i,1] += loc_error / total_sample_number
+		error_lie[i,0] += or_error / N
+		error_lie[i,1] += loc_error / N
 
 		#circular
 		[circular_theta, circular_x, circular_y] = agent_1.circular_estimate.read_estimation()
 		[or_error, loc_error] = agent_1.estimation_error(circular_theta, circular_x, circular_y)
-		error_circular[i,0] += or_error / total_sample_number
-		error_circular[i,1] += loc_error / total_sample_number
+		error_circular[i,0] += or_error / N
+		error_circular[i,1] += loc_error / N
 		
 		#Write to the file
 		# output_str = '{}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}, {:2.4}\n'.format(n, time_arr[i].item(), error_ekf[i,0], error_ekf[i,1], \
@@ -144,15 +144,12 @@ plt.plot(time_arr, error_lie[:,0], color = plot_color['LG-EKF'], linewidth=1.6, 
 
 plt.ylabel('orientation err')
 plt.ylim([0, 0.012])
-
 plt.legend()
-
 plt.subplot(212)
 plt.plot(time_arr, error_ekf[:,1], color = plot_color['EKF'], linewidth=1.6)
 plt.plot(time_arr, error_hybrid[:,1], color = plot_color['hybrid'], linewidth=1.6)
 plt.plot(time_arr, error_circular[:,1], color = plot_color['circular'], linewidth=1.6)
 plt.plot(time_arr, error_lie[:,1], color = plot_color['LG-EKF'], linewidth=1.6)
-
 plt.ylabel('position err')
 
 # plt.ylim([0, 0.3])
