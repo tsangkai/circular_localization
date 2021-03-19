@@ -50,7 +50,9 @@ initial_err_data =  pd.read_csv("result/initial.csv", names=initialization_colum
 theta_idx_size = 15
 error_data = np.loadtxt('result/test_error_data.txt').reshape(theta_idx_size, 8, total_sample_number*N) 
 # error_data = np.transpose(error_data,(1,0,2))
-# print(error_data.shape)
+# print(error_data.shape)]
+
+print(error_data.shape)
 
 
 
@@ -161,13 +163,41 @@ def plot_initial(with_std=False):
 
 	plt.show()
 
+def plot_last_of_initals():
+	#initaization error plots
+	fig, (ax1, ax2) = plt.subplots(2)
+	fig.set_size_inches(fig_width, fig_height)
+
+	ax1.plot(theta_ccr_arr, error_data[:,0,-1], '-x', color = plot_color['EKF'], linewidth=line_width, label = 'EKF')
+	ax1.plot(theta_ccr_arr, error_data[:,4,-1], '-x', color = plot_color['LG-EKF'], linewidth=line_width, label = 'LG-EKF')
+	ax1.plot(theta_ccr_arr, error_data[:,2,-1], '-x', color = plot_color['hybrid'], linewidth=line_width, label = 'hybrid')
+	ax1.plot(theta_ccr_arr, error_data[:,6,-1], '-x', color = plot_color['circular'], linewidth=line_width, label = 'circular')
+    
+    #labeling
+	ax1.set_xscale('log') 
+	ax1.set(ylabel='orientation error')
+	ax1.legend(loc = 'upper right')
+
+	
+	ax2.plot(theta_ccr_arr, error_data[:,1,-1], '-x', color = plot_color['EKF'], linewidth=line_width, label = 'EKF') #ekf_pos_error
+	ax2.plot(theta_ccr_arr, error_data[:,5,-1], '-x', color = plot_color['LG-EKF'], linewidth=line_width, label = 'LG-EKF') #ekf_pos_error
+	ax2.plot(theta_ccr_arr, error_data[:,3,-1], '-x', color = plot_color['hybrid'], linewidth=line_width, label = 'hybrid') #ekf_pos_error
+	ax2.plot(theta_ccr_arr, error_data[:,7,-1], '-x', color = plot_color['circular'], linewidth=line_width, label = 'circular') #ekf_pos_error
+	
+	#labeling
+	ax2.set_xscale('log')
+	ax2.set(ylabel='position error [m]')
+	ax2.set(xlabel='initial concentration parameter $\kappa_0$')
+
+	fig.savefig('result/last_pos_of_initals.pdf')
+
+	plt.show()
 
 
-
-
-plot_trajectory()
-plot_dynamics()
-plot_initial(False)
+# plot_trajectory()
+# plot_dynamics()
+# plot_initial(False)
+plot_last_of_initals()
 
 
 
