@@ -7,7 +7,7 @@ landmark_position: [20, 20]
 
 # Time
 dt: 0.1
-num_T: 16   # number of observation update
+num_T: 25   # number of observation update
 num_t: 10     # number of time updates for each observation update
 
 
