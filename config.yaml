@@ -1,0 +1,38 @@
+# the simulation parameters
+
+num_of_trial: 10
+
+# Landmark
+landmark_position: [20, 20]
+
+# Time
+dt: 0.1
+num_T: 25   # number of observation update
+num_t: 10     # number of time updates for each observation update
+
+
+##### Time update noise parameter
+
+# angular velocity
+w: 0.8        # rad/s
+w_std: 0.6
+
+# translational velocity
+v: 0.3        # m/s
+v_std: 0.03
+
+
+##### Observation update noise parameter
+phi_cct: 400.0
+d_std: 0.7   # sim_trajectory.py
+# d_std: 0.7   
+
+
+##### Visualization
+
+color: {
+    navy:      [0.1333, 0.2275, 0.3686],
+    grenadine: [0.8627, 0.2980, 0.2745],
+    spruce:    [0.0000, 0.3490, 0.3765],
+    mustard:   [0.8471, 0.6824, 0.2784]
+}
