@@ -46,7 +46,7 @@ class EKF:
 		H = np.array([[-1, dy/(math.pow(dx,2) + math.pow(dy,2)), -dx/(math.pow(dx,2) + math.pow(dy,2))], 
 			[0, -dx/est_distance, -dy/est_distance]])
 
-		S = np.array([[bearing_cov, 0],[0, distance_cov]]) + H * self.cov * H.T
+		S = np.array([[bearing_cov, 0],[0, distance_cov]]) + H @ self.cov @ H.T
 
 		innovation = observ - est_observ
 		innovation[0] = ((innovation[0] + math.pi) % (2*math.pi)) - math.pi

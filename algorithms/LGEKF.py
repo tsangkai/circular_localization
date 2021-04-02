@@ -6,7 +6,7 @@ from util.LieGroup import *
 
 class LGEKF:
 	def __init__(self, _mean=np.zeros((3,1)), _cov=0.01*np.identity(3)):
-		self.mean = LieGroup(_mean.item(0,0), _mean.item(1,0), _mean.item(2,0))
+		self.mean = LieGroup(_mean[0,0], _mean[1,0], _mean[2,0])
 		self.cov = _cov
 
 	def time_update(self, input_w, input_w_std, input_v, input_v_std, dt):

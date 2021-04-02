@@ -25,7 +25,7 @@ class Agent:
 
 		if _init_theta_given:
 			initial_state = np.matrix([_theta, _position[0], _position[1]]).getT()
-			initial_cov =np.matrix([[0.01,0,0], [0,0.01,0], [0,0,0.01]], dtype=float)
+			initial_cov =np.array([[0.01,0,0], [0,0.01,0], [0,0,0.01]], dtype=float)
 
 			# self.EKF_estimate = Estimators.GaussianSpatialState(_mean=initial_state, _cov=initial_cov)
 			self.EKF_estimate = EKF(_mean=initial_state, _cov=initial_cov)
@@ -37,7 +37,7 @@ class Agent:
 		else:                                    # unkown initial case (dynamic sim)
 			theta_cov = 1.0 / _init_theta_cct 
 			initial_state = np.matrix([0.0, 0.0, 0.0]).getT()
-			initial_cov =np.matrix([[theta_cov,0,0], [0,0.01,0], [0,0,0.01]], dtype=float)
+			initial_cov =np.array([[theta_cov,0,0], [0,0.01,0], [0,0,0.01]], dtype=float)
 
 			# self.EKF_estimate = Estimators.GaussianSpatialState(_mean=initial_state, _cov=initial_cov)
 			self.EKF_estimate = EKF(_mean=initial_state, _cov=initial_cov)
